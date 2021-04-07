@@ -19,8 +19,8 @@ for s = 1:length(data)
     V_data =zeros(length(C),1);
     for c = 1:length(C)
         ix = data(s).cond==C(c);
-        state = data(s).state(ix);
-        action = data(s).action(ix);
+        state = data(s).s(ix);
+        action = data(s).a(ix);
         reward = data(s).acc(ix);
         R_data(c) = mutual_information(state,action,0.1);
         V_data(c) = mean(data(s).reward(ix));

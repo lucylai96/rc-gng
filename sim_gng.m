@@ -18,8 +18,8 @@ end
 %     load model_fits;
 %     results = results(1);
 % end
-prettyplot;
 
+prettyplot;
 beta = linspace(0.1,15,50);
 Ps = [0.33 0.33 0.33];
 Q = [0.6 0.4;0.4 0.6; 0.6 0.4];
