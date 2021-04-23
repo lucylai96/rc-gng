@@ -1,20 +1,40 @@
 function analyze_dorfman19
 
 data = load_data('data2.csv');
-%load results2
 
 prettyplot
+map = gngColors(6);
 
 % optimal R-C curves for her task
 beta = linspace(0.1,15,50);
-Ps = [0.33 0.33 0.33];
-Q = [0.25 0.75; 0.75 0.25; 0.5 0.5];
+Ps = ones(1,2)/2;
+Q = [0.2 0.8; 0.8 0.2];
 [R(1,:),V(1,:)] = blahut_arimoto(Ps,Q,beta);
 
-Q = [0.75 0.25;0.25 0.75; 0.8 0.2];
-%Q = [0 1;1 0; 0 1];
-[R(2,:),V(2,:)] = blahut_arimoto(Ps,Q,beta);
 
+Ps = ones(1,4)/4;
+Q = [0.2 0.8; 0.2 0.8; 0.8 0.2; 0.8 0.2]; % distance is 0
+[R(2,:),V(2,:)] = blahut_arimoto(Ps,Q,beta); 
+
+Q = [0.25 0.75; 0.2 0.8; 0.8 0.2; 0.75 0.25]; % distance is 0.05
+[R(3,:),V(3,:)] = blahut_arimoto(Ps,Q,beta);
+
+Q = [0.3 0.7; 0.2 0.8; 0.8 0.2; 0.7 0.3]; % distance is 0.1
+[R(4,:),V(4,:)] = blahut_arimoto(Ps,Q,beta);
+
+Q = [0.35 0.65; 0.8 0.2; 0.2 0.8; 0.65 0.35]; % distance is 0.15
+Q = [0.3 0.7; 0.9 0.1; 0.1 0.9; 0.7 0.3]; % distance is 0.2: manipulate similarity without decreasing controllability
+[R(5,:),V(5,:)] = blahut_arimoto(Ps,Q,beta);
+
+Q = [0.4 0.6; 0.8 0.2; 0.2 0.8; 0.6 0.4]; % distance is 0.2
+[R(6,:),V(6,:)] = blahut_arimoto(Ps,Q,beta);
+
+% theoretical curves
+figure; hold on;
+plot(R',V')
+%legend('Control, S = 2','High similarity, S = 4','Med similarity, S = 4','Low similarity, S = 4')
+xlabel('Policy complexity')
+ylabel('Average reward')
 
 % Question: was p(A) actually high in LC even though optimally it should be
 % equal?
@@ -29,6 +49,8 @@ for c = 1:2 % condition
     end
 end
 
+pause(.1)
+
 figure; hold on;
 barwitherr(squeeze(sem(p,1))',squeeze(mean(p))')
 ylabel('Proportion of trials')
@@ -37,8 +59,9 @@ xticklabels({'LC','HC'})
 l = legend('No-Go','Go');
 title(l,'Action')
 
+
 figure; hold on;
-map = gngColors;
+map = gngColors(2);
 p = shadedErrorBar(1:size(movp,2), mean(movp(:,:,1)), sem(movp(:,:,1),1),{'Color',map(1,:)},1);
 pp = shadedErrorBar(1:size(movp,2), mean(movp(:,:,2)), sem(movp(:,:,2),1),{'Color',map(2,:)},1);
 
@@ -55,6 +78,7 @@ alpha = 0.1;
 C = unique(data(s).cond);        % condition
 R_data = zeros(length(data),length(C));
 V_data = zeros(length(data),length(C));
+Ps = [0.33 0.33 0.33];
 for s = 1:length(data)
     for c = 1:length(C)
         ix = data(s).cond==C(c);
@@ -64,27 +88,15 @@ for s = 1:length(data)
         end
         action = data(s).a(ix);
         r = data(s).r(ix);
-        Q = zeros(3,2);
-        
-        % learn Q table
-        for i = 1:length(state)
-            st = state(i);
-            ac = action(i);
-            Q(st,ac) =  Q(st,ac) + alpha*(r(i)-Q(st,ac));
+
+        if c ==1
+            Q = [0.75 0.25; 0.25 0.75; 0.5 0.5];
+        elseif c == 2
+            Q = [0.25 0.75; 0.75 0.25; 0.2 0.8];
         end
-        
         R_data(s,c) = mutual_information(state,action,0.1);
         V_data(s,c) = mean(data(s).r(ix));
         
-        S = unique(state);
-        %Ps = zeros(1,length(S));
-        %         for i = 1:length(S)
-        %             ii = state==S(i);
-        %             %Ps(i) = mean(ii);
-        %             for a = 1:2
-        %                 Q(i,a) = sum(data(s).a(ii) == a & data(s).r(ii) ==1)/sum(data(s).a(ii) == a);
-        %             end
-        %         end
         [R(c,:),V(c,:)] = blahut_arimoto(Ps,Q,beta);
         
         
@@ -112,20 +124,25 @@ legend('Low control','High control')
 for c = 1:2
     plot(R_data(:,c),V_data(:,c),'.','MarkerSize',20)
 end
-
+xlabel('Policy complexity')
+ylabel('Average reward')
 
 % Go bias for experiment 2
 for s = 1:length(data)
     acc(s,1) = mean(data(s).acc(data(s).s==1)) - mean(data(s).acc(data(s).s==2));
     acc(s,2) = mean(data(s).acc(data(s).s==4)) - mean(data(s).acc(data(s).s==5));
-    macc(s,1) = mean(results(3).latents(s).acc(data(s).s==1)) - mean(results(3).latents(s).acc(data(s).s==2));
-    macc(s,2) = mean(results(3).latents(s).acc(data(s).s==4)) - mean(results(3).latents(s).acc(data(s).s==5));
+    %macc(s,1) = mean(results(3).latents(s).acc(data(s).s==1)) - mean(results(3).latents(s).acc(data(s).s==2));
+    %macc(s,2) = mean(results(3).latents(s).acc(data(s).s==4)) - mean(results(3).latents(s).acc(data(s).s==5));
 end
 
 d = acc(:,1) - acc(:,2);
-err = zeros(2);
-err(:,1) = std(d)./sqrt(length(d));
-m(:,1) = mean(acc);
+%err = zeros(2);
+err = sem(acc,1);
+m = mean(acc);
+figure;
+barerrorbar(m',err');
+set(gca,'XTickLabel',{'Data' 'Model'},'FontSize',25,'XLim',[0.5 2.5],'YLim',[0 0.55]);
+ylabel('Go bias','FontSize',25);
 
 d = macc(:,1) - macc(:,2);
 err(:,2) = std(d)./sqrt(length(d));
