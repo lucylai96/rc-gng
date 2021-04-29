@@ -1,6 +1,6 @@
-function simdata = actor_critic_gng(agent,data)
-% Simulate actor-critic agent for go/no-go task
-% USAGE: simdata = actor_critic_gng(agent,data)
+function simdata = actor_critic_gng_nocost(agent,data)
+% Simulate actor-critic agent for go/no-go task but with no complexity cost
+% USAGE: simdata = actor_critic_gng_nocost(agent,data)
 
 if ~isfield(agent,'beta')
     agent.beta = agent.beta0;
@@ -19,21 +19,18 @@ for c = 1:length(C)
     V = zeros(setsize,1);              % state values
     Q = zeros(setsize,nA);             % state-action values
     beta = agent.beta;
-    ecost = 0;
     
     if isfield(agent,'p')
         p = agent.p;
     else
-        p = ones(1,nA)/nA;                 % marginal action probabilities
+        p = ones(1,nA)/nA;          % marginal action probabilities
     end
     
     for t = 1:length(state)
         s = state(t);
         
         phi = [Q(s,:); 0 V(s)];
-        %d = beta*(theta'*phi) + log(p);
-        d = (theta'*phi)+ [0 agent.b];
-        
+        d = beta*(theta'*phi) + log(p);
         
         logpolicy = d - logsumexp(d);
         policy = exp(logpolicy);    % softmax policy
@@ -45,21 +42,11 @@ for c = 1:length(C)
         end
         r = fastrandsample(R(s,a)); % reward
         
-        cost = logpolicy(a) - log(p(a));               % policy complexity cost
-        if agent.m == 1
-            rpe = beta*r - cost - V(s);                % reward prediction error
-        else
-            rpe = r - V(s);                            % reward prediction error
-        end
-        g = rpe*phi(:,a)*(1 - policy(a))*beta;         % policy gradient
+        rpe = r - V(s);                                % reward prediction error
+        g = phi(:,a)*rpe*(1 - policy(a))*beta;         % policy gradient
         V(s) = V(s) + agent.lrate_V*(r-V(s));          % state value update
         Q(s,a) = Q(s,a) + agent.lrate_V*(r-Q(s,a));    % state-action value update
-        ecost = ecost + agent.lrate_V*(cost-ecost);    % policy cost update
-        
-        if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*(agent.C-ecost);
-            beta = max(min(beta,50),0);
-        end
+     
         if agent.lrate_p > 0
             p = p + agent.lrate_p*(policy - p); p = p./sum(p);  % marginal update
         end
@@ -76,4 +63,5 @@ for c = 1:length(C)
         
     end
     simdata.p(c,:) = p;
+
 end

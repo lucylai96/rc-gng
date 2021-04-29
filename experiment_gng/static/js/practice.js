@@ -10,9 +10,9 @@ var fixation = {
 };
 
 var practice_stimuli = [
-  { practice_stimulus: 'static/img/test1.PNG', data: { test_part: 'practice', correct_response: 32 } },
-  { practice_stimulus: 'static/img/test2.PNG', data: { test_part: 'practice', correct_response: null } },
-  { practice_stimulus: 'static/img/test3.PNG', data: { test_part: 'practice', correct_response: null } } ];
+  { practice_stimulus: 'img/test1.PNG', data: { test_part: 'practice', correct_response: 32 } },
+  { practice_stimulus: 'img/test2.PNG', data: { test_part: 'practice', correct_response: null } },
+  { practice_stimulus: 'img/test3.PNG', data: { test_part: 'practice', correct_response: null } } ];
 
 var practice_trial = {
   type: 'image-keyboard-response',
