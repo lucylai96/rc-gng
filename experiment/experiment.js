@@ -57,11 +57,14 @@ function saveData(name, data) {
 }; 
 
 var stimuli = [
-  "img/square-b.PNG",
-  "img/square-p.PNG",
-  "img/square-o.PNG",
-  "img/square-y.PNG",
-  "img/square-t.PNG"
+  "img/blue.PNG",
+  "img/red.PNG",
+  "img/green.PNG",
+  "img/grey.PNG",
+  "img/purple.PNG",
+  "img/pink.PNG",
+  "img/yellow.PNG",
+  "img/orange.PNG"
 ];
 
   var timeline = [];
@@ -299,7 +302,11 @@ var stimuli = [
     })
   };
 
-images = ['img/square-b-reward.PNG', 'img/square-p-reward.PNG', 'img/square-o-reward.PNG', 'img/square-y-reward.PNG', 'img/square-b-neutral.PNG', 'img/square-p-neutral.PNG', 'img/square-o-neutral.PNG', 'img/square-y-neutral.PNG', 'img/test1.PNG', 'img/test1-reward.PNG', 'img/test1-neutral.PNG', 'img/test2.PNG', 'img/test2-reward.PNG', 'img/test2-neutral.PNG', 'img/square-t-neutral.PNG', 'img/square-t-reward.PNG', 'img/square-t.PNG'].concat(stimuli);
+images = ['img/blue-r.PNG', 'img/pink-r.PNG', 'img/orange-r.PNG', 'img/yellow-r.PNG', 'img/purple-r.PNG', 'img/green-r.PNG',...
+ 'img/square-b-neutral.PNG', 'img/square-p-neutral.PNG', 'img/square-o-neutral.PNG', 'img/square-y-neutral.PNG', ...
+ 'img/test1.PNG', 'img/test1-reward.PNG', 'img/test1-neutral.PNG', 'img/test2.PNG', 'img/test2-reward.PNG', 'img/test2-neutral.PNG', 'img/square-t-neutral.PNG', 'img/square-t-reward.PNG', 'img/square-t.PNG'].concat(stimuli);
+//images = ['img/square-b-reward.PNG', 'img/square-p-reward.PNG', 'img/square-o-reward.PNG', 'img/square-y-reward.PNG', 'img/square-b-neutral.PNG', 'img/square-p-neutral.PNG', 'img/square-o-neutral.PNG', 'img/square-y-neutral.PNG', 'img/test1.PNG', 'img/test1-reward.PNG', 'img/test1-neutral.PNG', 'img/test2.PNG', 'img/test2-reward.PNG', 'img/test2-neutral.PNG', 'img/square-t-neutral.PNG', 'img/square-t-reward.PNG', 'img/square-t.PNG'].concat(stimuli);
+
 jsPsych.pluginAPI.preloadImages(images, function () {startExperiment();});
 console.log("Images preloaded.");
 
