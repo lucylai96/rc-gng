@@ -318,7 +318,7 @@ for (i = 1; i < conditions.length; i++) {
     func: 
     function()
     { 
-      saveData(subject_id + '_output', jsPsych.data.get().csv());
+      saveData(subject_id, jsPsych.data.get().csv());
     },
     timing_post_trial: 0
   };
