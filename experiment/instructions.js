@@ -23,7 +23,7 @@ var instructions_block = {
     '<p class="center-content">Each time you see a square, you should decide whether to press [spacebar] or not before the square disappears.</p>' +
     '<p class="center-content">Once the time is up, you will see whether you won money ($$$) or won nothing (-).</p>',
     '<p class="center-content">Your goal is to learn which square(s) you should press [spacebar] for and which square(s) you should not press anything for by paying attention to when you are and are not rewarded.</p>' +
-    '<p class="center-content">You will receive a small amount of real bonus money each time you see the dollar signs, and you will be shown your bonus after completing the experiment.</p>' +
+    '<p class="center-content">You will receive a small amount of real bonus money each time you see the dollar signs, and you will be given your bonus after the HIT is approved.</p>' +
     '<p class="center-content">Sometimes, you will receive a reward even if you make the incorrect response, but most of the time, only a correct response will lead to a reward. Not receiving a reward is a neutral outcome and has no effect on your bonus earnings.</p>' +
     '<table style="margin-left:auto;margin-right:auto;table-layout:fixed !important; width:650px;"><tr>' +
     '<td><img src="img/test1-reward.PNG" border="10" style="width: 200px;"></td>' +
@@ -40,7 +40,8 @@ var instructions_block = {
     '<p class="center-content">Please note that if you respond randomly, always press, or never press, we reserve the right to withold your bonus.</p>',
     // Instructions (page 6)
     '<p class="center-content">We will begin with a practice round to get used to the buttons and timing.</p>' +
-    '<p class="center-content">For this round, we will give you the correct answers: Press [spacebar] for the green square, and do not press anything for the gray square or the pink square.</p>' +
+    '<p class="center-content">For this round, we will give you the correct answers</p>' +
+    '<p class="center-content">Press [spacebar] for the green square, and do not press anything for the gray square or the pink square.</p>' +
     '<p class="center-content">There will be 10 practice trials.</p>' +
     '<p class="center-content">Please remember that you only have a short time to make the decision of whether or not to press [spacebar].</p>' +
     '<table style="margin-left:auto;margin-right:auto;table-layout:fixed !important; width:650px;"><tr>' +

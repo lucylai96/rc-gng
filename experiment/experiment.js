@@ -75,8 +75,6 @@ var stimuli = [
 ];
 
 var timeline = [];
-var num_trials_per_stim = 1;
-var num_blocks = 5;
 
 /* Obtain consent */
   var consent_block = create_consent();
@@ -100,8 +98,13 @@ var num_blocks = 5;
   var ls_lc = [[0.8, 0.2],[0.2, 0.8],[0.6, 0.4],[0.4, 0.6]]; // low similarity, low control
   var ls_hc = [[0.8, 0.2],[0.2, 0.8],[1, 0], [0, 1]]; // low similarity, high control
   var conditions = [control, hs_lc, hs_hc, ls_lc, ls_hc];
-  console.log(control);
-  console.log(conditions);
+
+
+  var num_trials_per_stim = 1;
+  var num_blocks = conditions.length;
+  var num_stim = conditions.length*4 - 2;
+  var n_trials = num_trials_per_stim*num_stim;
+  console.log(n_trials)
 
   // Variable to keep track of most recent trial (to compare correctness)
   var trial_node_id = '';
@@ -116,6 +119,8 @@ var num_blocks = 5;
     on_finish: function(data) {
       data.correct = data.key_press == data.correct_response;
       trial_node_id = jsPsych.currentTimelineNodeID();
+      var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+      jsPsych.setProgressBar(curr_progress_bar_value + (1/n_trials));
     }
   };
 
@@ -268,7 +273,7 @@ for (i = 1; i < conditions.length; i++) {
     },
     show_clickable_nav: true
   };
-  timeline.push(bonus_block);
+  //timeline.push(bonus_block);
 
   // Survey
   var survey_workerid = {
@@ -307,6 +312,7 @@ for (i = 1; i < conditions.length; i++) {
   /* grab data before the end of the experiment */
   console.log("Subject ID: " + JSON.stringify(subject_id));
   console.log("data: $(jsPsych.data.get())");
+
   var save_data = {
     type: 'call-function',
     func: 
@@ -322,8 +328,10 @@ for (i = 1; i < conditions.length; i++) {
     console.log("Timeline: " + JSON.stringify(timeline));
     jsPsych.init({
       timeline: timeline,
+      show_progress_bar: true,
+      auto_update_progress_bar: false,
       on_finish: function() {
-        saveData();
+        window.location.href = "end.html";
       }
     })
   };
