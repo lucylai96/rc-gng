@@ -7,3 +7,15 @@ var check_consent = function(elem) {
 	}
 	return false;
 };
+
+var consent_block = {
+    type: 'external-html',
+    url: "consent.html",
+    cont_btn: "start",
+    check_fn: check_consent
+  };
+
+function create_consent() {
+  console.log("Creating consent block!");
+  return consent_block;
+};

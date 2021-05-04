@@ -6,7 +6,7 @@ var fixation = {
   type: 'html-keyboard-response',
   stimulus: '<div style="font-size:60px;">+</div>',
   choices: jsPsych.NO_KEYS,
-  trial_duration: 1500 // ms
+  trial_duration: 1000 // ms
 };
 
 var practice_stimuli = [
@@ -18,7 +18,7 @@ var practice_trial = {
   type: 'image-keyboard-response',
   stimulus: jsPsych.timelineVariable('practice_stimulus'),
   choices: [32],
-  trial_duration: 2000,  // ms
+  trial_duration: 1500,  // ms
   data: jsPsych.timelineVariable('data'),
   on_finish: function(data) {
   	if (data.key_press == 32){
@@ -47,14 +47,14 @@ var practice_feedback = {
     }
   },
   choices: jsPsych.NO_KEYS,
-  trial_duration: 1500  // ms
+  trial_duration: 1000  // ms
 };
 
 var practice_block = {
   timeline: [practice_trial, practice_feedback, fixation],
   timeline_variables: practice_stimuli,
   randomize_order: true,
-  repetitions: 5
+  repetitions: 1
 };
 
 var practice_finished = {
