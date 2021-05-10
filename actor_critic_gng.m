@@ -48,10 +48,11 @@ for c = 1:length(C)
         cost = logpolicy(a) - log(p(a));               % policy complexity cost
         if agent.m == 1
             rpe = beta*r - cost - V(s);                % reward prediction error
+            g = rpe*phi(:,a)*(1 - policy(a));          % policy gradient
         else
             rpe = r - V(s);                            % reward prediction error
-        end
-        g = rpe*phi(:,a)*(1 - policy(a))*beta;         % policy gradient
+            g = rpe*phi(:,a)*(1 - policy(a));          % policy gradient
+        end 
         V(s) = V(s) + agent.lrate_V*(r-V(s));          % state value update
         Q(s,a) = Q(s,a) + agent.lrate_V*(r-Q(s,a));    % state-action value update
         ecost = ecost + agent.lrate_V*(cost-ecost);    % policy cost update
@@ -67,8 +68,8 @@ for c = 1:length(C)
         theta = theta + agent.lrate_theta*g;        % policy parameter update
         
         simdata.s(ix(t)) = s;
-        simdata.action(ix(t)) = a;
-        simdata.reward(ix(t)) = r;
+        simdata.a(ix(t)) = a;
+        simdata.r(ix(t)) = r;
         simdata.acc(ix(t)) = acc;
         simdata.expreward(ix(t)) = policy(corchoice(t));
         simdata.beta(ix(t)) = beta;

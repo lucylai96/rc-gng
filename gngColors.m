@@ -1,6 +1,7 @@
 function map = gngColors(n)
 % color scheme/aesthetic palette for go/nogo controllability paper
 addpath '/Users/lucy/Google Drive/Harvard/Projects/mat-tools/'
+prettyplot
 
 if n > 4
     %map = brewermap(n+2,'Blues');

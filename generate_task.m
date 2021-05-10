@@ -4,7 +4,7 @@ function data = generate_task(s,legStr)
 beta = linspace(0.1,15,50);
 
 % S = 2
-trials = 200; states = 2;
+trials = 120; states = 2;
 Q2 = [0.2 0.8; 0.8 0.2]; Ps = ones(1,states)/states;
 cond(1) = generate_cond(trials, states, Q2);
 [R(1,:),V(1,:)] = blahut_arimoto(Ps,Q2,beta);
@@ -22,7 +22,7 @@ Q4(:,:,3) = [0.2 0.8; 0.8 0.2; 0.4 0.6; 0.6 0.4];  % S = 4, low similarity, LC, 
 Q4(:,:,4) = [0.2 0.8; 0.8 0.2; 0 1; 1 0];          % S = 4, low similarity, HC, distance is 0.2
 
 
-trials = 200; states = 4; Ps = ones(1,states)/states;
+trials = 120; states = 4; Ps = ones(1,states)/states;
 for i = 2:size(Q4,3)+1
     cond(i) = generate_cond(trials, states, Q4(:,:,i-1));
     [R(i,:),V(i,:)] = blahut_arimoto(Ps,Q4(:,:,i-1),beta);

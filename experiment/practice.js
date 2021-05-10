@@ -10,9 +10,9 @@ var fixation = {
 };
 
 var practice_stimuli = [
-  { practice_stimulus: 'img/test1.PNG', data: { test_part: 'practice', correct_response: 32 } },
-  { practice_stimulus: 'img/test2.PNG', data: { test_part: 'practice', correct_response: null } },
-  { practice_stimulus: 'img/test3.PNG', data: { test_part: 'practice', correct_response: null } } ];
+  { practice_stimulus: 'img/test1.PNG', data: {test_part: 'practice', correct_response: 32} },
+  { practice_stimulus: 'img/test2.PNG', data: {test_part: 'practice', correct_response: null} },
+  { practice_stimulus: 'img/test3.PNG', data: {test_part: 'practice', correct_response: null} } ];
 
 var practice_trial = {
   type: 'image-keyboard-response',
@@ -54,7 +54,7 @@ var practice_block = {
   timeline: [practice_trial, practice_feedback, fixation],
   timeline_variables: practice_stimuli,
   randomize_order: true,
-  repetitions: 1
+  repetitions: 4
 };
 
 var practice_finished = {

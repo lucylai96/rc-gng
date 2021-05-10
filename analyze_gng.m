@@ -4,11 +4,8 @@ function results = analyze_gng(data)
 
 % Written by: Lucy Lai
 
-
-addpath('/Users/lucy/Google Drive/Harvard/Projects/rc-behav/code/GoNogo-control/')
 if nargin < 1
-    data = load_data('data2.csv');
-    
+    load gng_data; %data = analyze_rawdata; % load gng_data.mat
 end
 
 beta = linspace(0.1,15,50);
@@ -19,12 +16,12 @@ for s = 1:length(data)
     for c = 1:length(C)
         Q = data(s).condQ(c).Q;
         ix = data(s).cond==C(c); 
-        state = data(s).state(ix);
-        action = data(s).action(ix);
+        state = data(s).s(ix);
+        action = data(s).a(ix);
         Ps = ones(1,length(unique(state)))/length(unique(state));
         
         R_data(s,c) = mutual_information(state,action,0.1);
-        V_data(s,c) = mean(data(s).reward(ix));
+        V_data(s,c) = mean(data(s).r(ix));
         
         [R(c,:),V(c,:)] = blahut_arimoto(Ps,Q,beta);
         
@@ -40,6 +37,8 @@ results.R_data = R_data;
 results.V_data = V_data;
 
 
+% save data
+save('gng_results.mat','results');
 
 % compute bias
 % R = squeeze(nanmean(results.R));

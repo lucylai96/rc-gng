@@ -2,7 +2,7 @@ function data = analyze_rawdata
 % analyze raw data and store into structure
 clear all
 % subj = {'A191V7PT3DQKDP','A3V2XCDF45VN9X','A2V27A9GZA1NR2','A3FT3XPTOWHJMY'}; % pilot 1
-% batch of 40/40
+% batch of 36/40
 subj = {'A19TD2J8506A4Y','A19WXS1CLVLEEX','A1B5SSGMTAQ9B5','A1BFA82J9Q1CLA',...
     'A1NDMFN9A5G25G','A1SOFLJOEQB591','A1T3ROSW2LC4FG','A2196WCNDZULFS','A24Z9RP5YZZ2TY',...
     'A2615YW1YERQBO','A2IQ0QCTQ3KWLT','A2V27A9GZA1NR2','A30HUZHJBOX1LK','A348NEQKS6VNIB',...
@@ -10,10 +10,7 @@ subj = {'A19TD2J8506A4Y','A19WXS1CLVLEEX','A1B5SSGMTAQ9B5','A1BFA82J9Q1CLA',...
     'A3GLUDQZGEJL5G','A3K9GTQBOI7O5A','A98E8M4QLI9RS','AFU00NU09CFXE',...
     'AJQ71YIGY01HZ','AMELYCC59JKB0','AOS2PVHT2HYTL','AVCOBHDVXZOZL','AZNIEFUIVB2H0',...
     'A3RKG5PZN97RD5','A12XVSIL669PVI.csv','A1GKD3NG1NNHRP.csv','A1HRH92NH49RX2.csv',...
-    'A273DS7TQWR9M1.csv','A2VNSNAN1LZBAM.csv','A9HQ3E0F2AGVO.csv','AA4O2W236E3FW.csv',...\
-    'A1SISJL5ST2PWH.csv','A2871R3LEPWMMK.csv','A2ZDEERVRN5AMC.csv','A4ZPIPBDO624H.csv'};
-
-cutoff = 0;% cutoff percentage [0 1]
+    'A273DS7TQWR9M1.csv','A2VNSNAN1LZBAM.csv','A9HQ3E0F2AGVO.csv','AA4O2W236E3FW.csv'};
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -28,9 +25,9 @@ for s = 1:length(subj)
     incorr = sum(strcmp(A(40:end,12), 'false'));
     pcorr(s) = corr/(corr+incorr);
 end
-histogram(pcorr,20)
+histogram(pcorr,15)
 xlabel('% Accuracy'); ylabel('# of Subjects');
-subj = subj(find(pcorr>cutoff)); % filter by percent correct >cutoff%
+subj = subj(find(pcorr>0.7)); % filter by percent correct >65%
 
 data.legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
 
@@ -62,10 +59,10 @@ for s = 1:length(subj)
     block_bounds = find(strcmp(A(:,3),'instructions')==1); % index for when block changes
     n_trials = sum(~isnan(cell2mat(A(:,15))));
     data(s).t = [1:n_trials]'; % trial #
-    %states = {'go_a', 'nogo_b', 'go_c', 'nogo_d'};
-    %for i = 1:length(states)
-    %    A(:,14) = strrep(A(:,14),states{i},num2str(i));
-    %end
+    states = {'go_a', 'nogo_b', 'go_c', 'nogo_d'};
+    for i = 1:length(states)
+        A(:,14) = strrep(A(:,14),states{i},num2str(i));
+    end
     [~,~,bin] = unique(A(:,14),'sorted');
     data(s).s =  bin(bin>1 & ~isnan(cell2mat(A(:,15))))-1; % states
     data(s).a = double(str2double(A(trial_idx,9))==32) + 1; % 1 = no-go, 2 = go

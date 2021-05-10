@@ -2,7 +2,23 @@
 // Previous Work By Hayley Dorfman
 // Updated June 2020 by Emma Rogge for Lucy Lai's experiment
 
+// Create reward probability functions for 4 stimuli
+  var control = [[0.8, 0.2],[0.2, 0.8]]; // control (go, no-go)
+  var hs_lc = [[0.6, 0.4],[0.4, 0.6],[0.6, 0.4],[0.4, 0.6]]; // high similarity, low control
+  var hs_hc = [[0.8, 0.2],[0.2, 0.8],[0.8, 0.2],[0.2, 0.8]]; // high similarity, high control
+  var ls_lc = [[0.8, 0.2],[0.2, 0.8],[0.6, 0.4],[0.4, 0.6]]; // low similarity, low control
+  var ls_hc = [[0.8, 0.2],[0.2, 0.8],[1, 0], [0, 1]]; // low similarity, high control
+  var conditions = [control, hs_lc, hs_hc, ls_lc, ls_hc];
 
+
+  var num_trials_per_stim = 30;
+  var num_blocks = conditions.length;
+  var num_stim = conditions.length*4 - 2;
+  var n_trials = num_trials_per_stim*num_stim;
+  console.log(n_trials)
+
+
+// Feedback functions
 function getStimStem(elem) {
   return String(elem.substring(0, elem.length - 4));
 };
@@ -37,23 +53,9 @@ if (R < reward_context[0][action]) {
 }
 };
 
-/* Save data to CSV */
-// function saveData(name, data) {
-//   console.log("Saving data now");
-//   fetch('http://localhost:5000/save_data', {
-//     method: 'POST',
-//     body: JSON.stringify({filename: name, filedata: data})
-//   }).then(function (response) {
-//     return response.text();
-//   }).then(function (text) {
-//     console.log("POST response: ");
-//     // Should be 'ok' if successful
-//     console.log(text);
-//   });
-// }; 
-
+/* Save data to CSV  */
 function saveData(name, data) {
-    var xhr = new XMLHttpRequest();
+  var xhr = new XMLHttpRequest();
     xhr.open('POST', 'write_data.php'); // 'write_data.php' is the path to the php file described above.
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify({
@@ -62,21 +64,21 @@ function saveData(name, data) {
     }));
   }
 
+// Stimuli
+  var stimuli = [
+  "img/blue.png",
+  "img/red.png",
+  "img/green.png",
+  "img/grey.png",
+  "img/purple.png",
+  "img/pink.png",
+  "img/yellow.png",
+  "img/orange.png"
+  ];
 
-var stimuli = [
-"img/blue.png",
-"img/red.png",
-"img/green.png",
-"img/grey.png",
-"img/purple.png",
-"img/pink.png",
-"img/yellow.png",
-"img/orange.png"
-];
+  var timeline = [];
 
-var timeline = [];
-
-/* Obtain consent */
+  /* Obtain consent */
   var consent_block = create_consent();
   timeline.push(consent_block);
 
@@ -89,22 +91,6 @@ var timeline = [];
   var finish_practice = finish_practice();
   timeline.push(practice_block);
   timeline.push(finish_practice);
-
-  // Create reward probability functions for 4 stimuli
-  //var hpc_reward_context = [[0.9,0.1],[0.75, 0.25],[0.25, 0.75],[0.1,0.9]];
-  var control = [[0.8, 0.2],[0.2, 0.8]]; // control (go, no-go)
-  var hs_lc = [[0.6, 0.4],[0.4, 0.6],[0.6, 0.4],[0.4, 0.6]]; // high similarity, low control
-  var hs_hc = [[0.8, 0.2],[0.2, 0.8],[0.8, 0.2],[0.2, 0.8]];  // high similarity, high control
-  var ls_lc = [[0.8, 0.2],[0.2, 0.8],[0.6, 0.4],[0.4, 0.6]]; // low similarity, low control
-  var ls_hc = [[0.8, 0.2],[0.2, 0.8],[1, 0], [0, 1]]; // low similarity, high control
-  var conditions = [control, hs_lc, hs_hc, ls_lc, ls_hc];
-
-
-  var num_trials_per_stim = 1;
-  var num_blocks = conditions.length;
-  var num_stim = conditions.length*4 - 2;
-  var n_trials = num_trials_per_stim*num_stim;
-  console.log(n_trials)
 
   // Variable to keep track of most recent trial (to compare correctness)
   var trial_node_id = '';
@@ -186,10 +172,10 @@ var control_block_stim = [];
 control_block_stim.push(
   [ { stimulus: go_stimulus_a,
     data: { test_part: 'trial', correct_response: 32, 
-    use_rew: reward_prob_a, which_stim: 'go_a'} },
+    use_rew: reward_prob_a, which_stim: '1:go_a'} },
     { stimulus: nogo_stimulus_b,
       data: { test_part: 'trial', correct_response: null, 
-      use_rew: reward_prob_b, which_stim: 'nogo_b'} }
+      use_rew: reward_prob_b, which_stim: '2:nogo_b'} }
       ] 
       );
 
@@ -205,12 +191,12 @@ timeline.push(control_block);
 timeline.push(between_block);
 
 // other conditions order
-var order = [2,3,4,5]
+var order = [1,2,3,4]
 var order = jsPsych.randomization.repeat(order, 1);
 
-for (i = 1; i < conditions.length; i++) {
+for (i = 0; i < order.length; i++) {
       var block = order[i]; // randomized block order
-      var reward_prob  = conditions[i]
+      var reward_prob  = conditions[block]
       var reward_prob_a = reward_prob[0];
       var reward_prob_b = reward_prob[1];
       var reward_prob_c = reward_prob[2];
@@ -232,19 +218,19 @@ for (i = 1; i < conditions.length; i++) {
       block_stim.push(
         [ { stimulus: go_stimulus_a,
           data: { test_part: 'trial', correct_response: 32, 
-          use_rew: reward_prob_a, which_stim: 'go_a' } },
+          use_rew: reward_prob_a, which_stim: '1:go_a' } },
 
           { stimulus: nogo_stimulus_b,
             data: { test_part: 'trial', correct_response: null, 
-            use_rew: reward_prob_b, which_stim: 'nogo_b' } },
+            use_rew: reward_prob_b, which_stim: '2:nogo_b' } },
 
             { stimulus: go_stimulus_c,
               data: { test_part: 'trial', correct_response: 32, 
-              use_rew: reward_prob_c, which_stim: 'go_c' } },
+              use_rew: reward_prob_c, which_stim: '3:go_c' } },
 
               { stimulus: nogo_stimulus_d,
                 data: { test_part: 'trial', correct_response: null, 
-                use_rew: reward_prob_d, which_stim: 'nogo_d'} }        
+                use_rew: reward_prob_d, which_stim: '4:nogo_d'} }        
                 ] 
                 );
 
@@ -275,54 +261,40 @@ for (i = 1; i < conditions.length; i++) {
   };
   //timeline.push(bonus_block);
 
-  // Survey
-  var survey_workerid = {
-    type: 'survey-text',
-    questions: [{prompt: 'Please input your Mturk Worker ID so that we can pay you the appropriate bonus. Your ID will not be shared with anyone outside of our research team.', value: 'Worker ID'}]
-  };
-
   var survey_comments = {
     type: 'survey-text',
-    questions: [{prompt: 'We\'re always trying to improve. Please let us know if you have any comments.</br> Click "Submit Answer" to finish the experiment.', value: 'Comments'}],
-    button_label: 'Submit Answer'
+    questions: [{prompt: 'You have finished the experiment! We\'re always trying to improve. Please let us know if you have any feedback or comments about the task.', value: 'Comments'}],
+    button_label: 'Submit'
   };
-  timeline.push(survey_workerid, survey_comments);
+  timeline.push(survey_comments);
 
-  // Add information to data
-  var subject_id =  jsPsych.randomization.randomID(5); // Random subject ID
-  jsPsych.data.addProperties({
-    subject_id: subject_id
-  });
-
-  var turkInfo = jsPsych.turk.turkInfo();
-  jsPsych.data.addProperties({
-    assignmentID: turkInfo.assignmentId
-  });
-  jsPsych.data.addProperties({
-    mturkID: turkInfo.workerId
-  });
-  jsPsych.data.addProperties({
-    hitID: turkInfo.hitId
-  });
-  jsPsych.data.addProperties({
-    task_version: "v1"
-  });
-
-
-  /* grab data before the end of the experiment */
-  console.log("Subject ID: " + JSON.stringify(subject_id));
-  console.log("data: $(jsPsych.data.get())");
-
+  // Save data=
   var save_data = {
-    type: 'call-function',
-    func: 
-    function()
-    { 
-      saveData(subject_id, jsPsych.data.get().csv());
+    type: "survey-text",
+    questions: [{prompt: 'Please input your MTurk Worker ID so that we can pay you the appropriate bonus. Your ID will not be shared with anyone outside of our research team. Your data will now be saved.', value: 'Worker ID'}],
+    on_finish: function(data) {
+      var responses = JSON.parse(data.responses);
+      var subject_id = responses.Q0;
+      console.log(subject_id)
+      saveData(subject_id, jsPsych.data.get().csv());;
     },
-    timing_post_trial: 0
-  };
+  }
+
   timeline.push(save_data);
+
+  var end_block = {
+    type: 'instructions',
+    pages: [
+    '<p class="center-content"> <b>Thank you for participating in our experiment!</b></p>' +
+    '<p class="center-content"> <b>Please wait on this page for a minute while your data saves.</b></p>'+
+    '<p class="center-content"> Your bonus will be applied after your data has been processed and your HIT has been approved.</p>'+
+    '<p class="center-content"> Please email lucylai@g.harvard.edu with any additional questions or concerns. You may now exit this window.</p>'
+    ],
+    show_clickable_nav: false,
+    allow_backward: false,
+    show_page_number: false
+  };
+  timeline.push(end_block);
 
   function startExperiment(){
     console.log("Timeline: " + JSON.stringify(timeline));
@@ -330,15 +302,15 @@ for (i = 1; i < conditions.length; i++) {
       timeline: timeline,
       show_progress_bar: true,
       auto_update_progress_bar: false,
-      on_finish: function() {
-        window.location.href = "end.html";
-      }
+      //on_finish: function() {
+        //window.location.href = "end.html";
+      //}
     })
   };
 
   images = ['img/blue-r.png', 'img/red-r.png', 'img/green-r.png', 'img/grey-r.png', 'img/purple-r.png', 'img/pink-r.png', 'img/yellow-r.png', 'img/orange-r.png','img/blue-n.png', 'img/red-n.png', 'img/green-n.png', 'img/grey-n.png', 'img/purple-n.png', 'img/pink-n.png', 'img/yellow-n.png', 'img/orange-n.png','img/test1.PNG', 'img/test1-reward.PNG', 'img/test1-neutral.PNG', 'img/test2.PNG', 'img/test2-reward.PNG', 'img/test2-neutral.PNG'].concat(stimuli);
 
-jsPsych.pluginAPI.preloadImages(images, function () {startExperiment();});
-console.log("Images preloaded.");
+  jsPsych.pluginAPI.preloadImages(images, function () {startExperiment();});
+  console.log("Images preloaded.");
 
 

@@ -3,7 +3,7 @@ var instructions_block = {
   pages: [
     // Welcome (page 1)
     '<p class="center-content">Welcome to the experiment!</p>' +
-    '<p class="center-content">You will earn $20 plus a performance-dependent bonus of $0-20 for completing this HIT.</p>' +
+    '<p class="center-content">You will earn $7 plus a performance-dependent bonus of $0-10 for completing this HIT.</p>' +
     '<p class="center-content">Press "Next" to view the game instructions.</p>',
     // Instructions (page 2)
     '<p class="center-content">The purpose of this experiment is to learn when to press a key in response to colored squares that appear on the screen to obtain monetary reward.</p>' +
@@ -40,9 +40,9 @@ var instructions_block = {
     '<p class="center-content">Please note that if you respond randomly, always press, or never press, we reserve the right to withold your bonus.</p>',
     // Instructions (page 6)
     '<p class="center-content">We will begin with a practice round to get used to the buttons and timing.</p>' +
-    '<p class="center-content">For this round, we will give you the correct answers</p>' +
+    '<p class="center-content">For this round, we will give you the correct answers:</p>' +
     '<p class="center-content">Press [spacebar] for the green square, and do not press anything for the gray square or the pink square.</p>' +
-    '<p class="center-content">There will be 10 practice trials.</p>' +
+    '<p class="center-content">There will be 12 practice trials.</p>' +
     '<p class="center-content">Please remember that you only have a short time to make the decision of whether or not to press [spacebar].</p>' +
     '<table style="margin-left:auto;margin-right:auto;table-layout:fixed !important; width:650px;"><tr>' +
     '<td><img src="img/test1.PNG" style="width: 200px;"></td>' +
