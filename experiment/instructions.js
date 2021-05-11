@@ -3,7 +3,7 @@ var instructions_block = {
   pages: [
     // Welcome (page 1)
     '<p class="center-content">Welcome to the experiment!</p>' +
-    '<p class="center-content">You will earn $7 plus a performance-dependent bonus of $0-10 for completing this HIT.</p>' +
+    '<p class="center-content">You will earn $1 plus a performance-dependent bonus of $0-15 for completing this HIT.</p>' +
     '<p class="center-content">Press "Next" to view the game instructions.</p>',
     // Instructions (page 2)
     '<p class="center-content">The purpose of this experiment is to learn when to press a key in response to colored squares that appear on the screen to obtain monetary reward.</p>' +
@@ -37,7 +37,7 @@ var instructions_block = {
     '<p class="center-content">So treat each new block as a new task with the same rules.</p>',
     //Instructions (page 5)
     '<p class="center-content">Please try your best to make the best response for each square. We really appreciate your hard work! </p>' +
-    '<p class="center-content">Please note that if you respond randomly, always press, or never press, we reserve the right to withold your bonus.</p>',
+    '<p class="center-content"><b>Please note that if you respond randomly, always press, or never press, we reserve the right to withold your bonus.</b></p>',
     // Instructions (page 6)
     '<p class="center-content">We will begin with a practice round to get used to the buttons and timing.</p>' +
     '<p class="center-content">For this round, we will give you the correct answers:</p>' +
