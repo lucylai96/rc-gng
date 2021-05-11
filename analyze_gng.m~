@@ -45,15 +45,14 @@ for c = 1:length(C)
     results.bias(:,c) = Vd2(:,c) - results.V_data(:,c);
     results.V_interp(:,c) = Vd2(:,c);
 end
-results.bias(isnan(results.bias)) = 0;
+
 
 % save data
 save('gng_results.mat','results');
 
 % plot
-plot_figures('reward-complexity');
-plot_figures('bias-complexity');
-plot_figures('conditions');
-plot_figures('gobias');
-plot_figures('beta-complexity');
+plot_figures('reward-complexity',results,data);
+plot_figures('gobias',results,data);
+plot_figures('gobias',results,data);
+plot_figures('gobias',results,data);
 end

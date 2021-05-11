@@ -28,7 +28,59 @@ switch fig
             end
         end
         
+    case 'bias-complexity'
+        
+        figure; hold on;
+        for c = 1:C
+            y = results.bias(:,c);
+            x = results.R_data(:,c);
+            plot(x,y,'.','Color',map(c,:),'MarkerSize',30,'LineWidth',3);
+            H = lsline; set(H,'LineWidth',4);
+            hold on;
+            [r,p,rl,ru] = corrcoef(x(:),y(:));
+            disp([legStr{c},': r = ',num2str(r(2,1)),', p = ',num2str(p(2,1)),', CI = [',num2str(rl(2,1)),',',num2str(ru(2,1)),']']);
+            [r,p] = corr(x(:),y(:),'type','spearman')
+        end
+        xlabel('Policy complexity');
+        ylabel('Bias');
+        legend(H,legStr)
+        
+    case 'conditions'
+        
+        % does each condition have diff learned policy complexities?
+        figure; hold on;
+        subplot 121; hold on;
+        x = 1:C;
+        for c = 1:C
+            scatter(c*ones(size(results.R_data,1),1),results.R_data(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+        end
+        hold on;
+        [mu,~,ci] = normfit(results.R_data);
+        err = diff(ci)/2;
+        errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
+        
+        ylabel('Policy complexity');
+        xlabel('Condition');
+        xlim([0 6])
+        hold on;
+        % does each condition have diff biases?
+        subplot 122; hold on;
+        
+        for c = 1:C
+            scatter(c*ones(size(results.bias,1),1),results.bias(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+        end
+        hold on;
+        [mu,~,ci] = normfit(results.bias);
+        err = diff(ci)/2;
+        
+        errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
+        xlabel('Condition');
+        ylabel('Bias');
+        xlim([0 6])
+        %set(gcf,'Position',[200 200 1200 800])
+        
     case 'gobias'
+        figure; hold on;
         % dynamic go bias
         for s = 1:length(data)
             for c = 1:C
@@ -44,17 +96,26 @@ switch fig
         err = sem(acc,1);
         m = mean(acc);
         
-        figure; hold on;
-        subplot 211; hold on; % go bias bar
+        subplot 311; hold on; % go bias bar
         [h] = barwitherr(err,m,'FaceColor','flat');
         for c = 1:C
             h.CData(c,:) = map(c,:); hold on;
-            scatter(c*ones(size(acc,1),1),acc(:,c),100,map(c,:),'filled','MarkerEdgeColor','k','LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.1); hold on;
         end
         ylabel('Go bias');
-        ylim([0 1])
+        axis tight
+        xlim([0 6])
         
-        subplot 212; hold on; % dynamic go bias
+        subplot 312; hold on; % go bias bar
+        [h] = barwitherr(err,m,'FaceColor','flat');
+        for c = 1:C
+            h.CData(c,:) = map(c,:); hold on;
+            scatter(c*ones(size(acc,1),1),acc(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+        end
+        ylabel('Go bias');
+        axis tight
+        xlim([0 6])
+        
+        subplot 313; hold on; % dynamic go bias
         for c = 1:C
             l(c,:) = shadedErrorBar(1:size(gobias,2),mean(gobias(:,:,c)),sem(gobias(:,:,c),1),{'Color',map(c,:)},1);
         end
@@ -68,8 +129,11 @@ switch fig
         ylim([0 1])
         xlim([0 length(go)])
         
+        set(gcf,'Position',[200 200 500 1200])
         
     case 'mov_params' % only for model
+        figure; hold on;
+        
         movbeta = zeros(length(data),length(data(1).beta(data(1).cond==2)));
         movtheta = zeros(length(data)*2,length(data(1).theta(data(1).cond==2)));
         
@@ -93,7 +157,6 @@ switch fig
         err = sem(acc,1);
         m = mean(acc);
         
-        figure; hold on;
         subplot 311; hold on; % go bias bar
         [h] = barwitherr(err,m,'FaceColor','flat');
         for c = 1:C
@@ -146,7 +209,27 @@ switch fig
         set(gcf, 'Position',  [400, 200, 1000, 400])
         
         
+    case 'beta-complexity'
+        % what value of beta is needed to meet capacity constraint?
+        figure; hold on;
+        beta = linspace(0.1,15,50);
+        R = squeeze(mean(results.R));
+        m = mean(results.R_data);
         
+        for c = 1:C
+            h(c) = plot(R(:,c),beta','-','LineWidth',4,'Color',map(c,:));
+            hold on;
+            ix = find(R(:,c)>=m(c),1); % find the theoretical policy complexity that's at the mean of the empirical policy complexity
+            plot(R(ix,c),beta(ix),'.','LineWidth',4,'Color',map(c,:),'MarkerSize',50);
+            b(c) = beta(ix);
+        end
+        %             lgd = legend(h,{'2' '3' '4' '5' '6'},'FontSize',25,'Location','NorthWest');
+        %             title(lgd,'Set size','FontSize',25);
+        %             set(gca,'FontSize',25);
+        xlabel('Policy complexity');
+        ylabel('\beta');
+        legend(h,legStr)
+        b
 end
 
 end
