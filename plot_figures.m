@@ -109,7 +109,7 @@ switch fig
         [h] = barwitherr(err,m,'FaceColor','flat');
         for c = 1:C
             h.CData(c,:) = map(c,:); hold on;
-            scatter(c*ones(size(acc,1),1),acc(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+            scatter(c*ones(size(acc,1),1),acc(:,c),100,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.75','jitter','on','jitterAmount',0.1); hold on;
         end
         ylabel('Go bias');
         axis tight

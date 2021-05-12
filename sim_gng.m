@@ -52,4 +52,32 @@ simdata(1).legStr = legStr;
 
 plot_figures('reward-complexity',simresults,simdata);
 plot_figures('mov_params',simresults,simdata);
+
+
+%%
+%  if nargin < 1
+%         data = load_data;
+%     end
+%     
+%     if nargin < 2
+%         load model_fits;
+%         results = results(1);
+%     end
+%     
+%     for s = 1:length(data)
+%         
+%         agent.lrate_beta = 0;
+%         agent.lrate_p = 0;
+%         agent.C = [];
+%         for k = 1:length(results.param)
+%             agent.(results.param(k).name) = results.x(s,k);
+%         end
+%         
+%         simdata(s) = actor_critic(agent,data(s));
+%     end
+%     
+%     simresults = analyze_collins14(simdata);
+%     
+%     plot_figures('fig2',simresults,simdata);
+%     plot_figures('fig3',simresults,simdata);
 end

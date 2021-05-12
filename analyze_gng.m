@@ -51,6 +51,7 @@ results.bias(isnan(results.bias)) = 0;
 save('gng_results.mat','results');
 
 % plot
+close all
 plot_figures('reward-complexity');
 plot_figures('bias-complexity');
 plot_figures('conditions');
