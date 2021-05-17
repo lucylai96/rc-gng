@@ -15,7 +15,7 @@ V_data = zeros(length(data),1);
 for s = 1:length(data)
     for c = 1:length(C)
         Q = data(s).condQ(c).Q;
-        ix = data(s).cond==C(c); 
+        ix = data(s).cond==C(c);
         state = data(s).s(ix);
         action = data(s).a(ix);
         Ps = ones(1,length(unique(state)))/length(unique(state));
@@ -23,7 +23,12 @@ for s = 1:length(data)
         R_data(s,c) = mutual_information(state,action,0.1);
         V_data(s,c) = mean(data(s).r(ix));
         
+        if C(c) == 3
+            Q(3,:) = [0.81, 0.19];
+            Q(4,:) = [0.19, 0.81];
+        end
         [R(c,:),V(c,:)] = blahut_arimoto(Ps,Q,beta);
+        
         
         results.R(s,:,c) = R(c,:); % S subjects x 50 betas x C conditions
         results.V(s,:,c) = V(c,:);
@@ -50,11 +55,4 @@ results.bias(isnan(results.bias)) = 0;
 % save data
 save('gng_results.mat','results');
 
-% plot
-close all
-plot_figures('reward-complexity');
-plot_figures('bias-complexity');
-plot_figures('conditions');
-plot_figures('gobias');
-plot_figures('beta-complexity');
 end

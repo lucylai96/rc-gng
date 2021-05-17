@@ -1,6 +1,6 @@
 function analyze_dorfman19
 
-data = load_data('data2.csv');
+data = load_data('dorfman_data.csv');
 
 prettyplot
 map = gngColors(6);

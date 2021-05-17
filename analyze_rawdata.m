@@ -1,9 +1,12 @@
 function data = analyze_rawdata
 % analyze raw data and store into structure
+
 clear all
+%close all
 % subj = {'A191V7PT3DQKDP','A3V2XCDF45VN9X','A2V27A9GZA1NR2','A3FT3XPTOWHJMY'}; % pilot 1
+
 % batch of 40/40
-subj = {'A19TD2J8506A4Y','A19WXS1CLVLEEX','A1B5SSGMTAQ9B5','A1BFA82J9Q1CLA',...
+subj1 = {'A19TD2J8506A4Y','A19WXS1CLVLEEX','A1B5SSGMTAQ9B5','A1BFA82J9Q1CLA',...
     'A1NDMFN9A5G25G','A1SOFLJOEQB591','A1T3ROSW2LC4FG','A2196WCNDZULFS','A24Z9RP5YZZ2TY',...
     'A2615YW1YERQBO','A2IQ0QCTQ3KWLT','A2V27A9GZA1NR2','A30HUZHJBOX1LK','A348NEQKS6VNIB',...
     'A34SIGOLUGKIHJ','A37S96RT1P1IT2','A3CTXNQ2GXIQSP','A3FNC8ELMK8YJA','A3G5IPGLH1IIZN',...
@@ -13,9 +16,23 @@ subj = {'A19TD2J8506A4Y','A19WXS1CLVLEEX','A1B5SSGMTAQ9B5','A1BFA82J9Q1CLA',...
     'A273DS7TQWR9M1.csv','A2VNSNAN1LZBAM.csv','A9HQ3E0F2AGVO.csv','AA4O2W236E3FW.csv',...
     'A1SISJL5ST2PWH.csv','A2871R3LEPWMMK.csv','A2ZDEERVRN5AMC.csv','A4ZPIPBDO624H.csv'};
 
-subj = {'A10JXOU89D5RXR.csv','A1I72NHC21347A.csv','A1Q56N80RJLQ7S.csv','A2APG8MSLJ6G2K.csv','A2PIFMM4Q2I9ZS.csv','A2VNWJU49OOVFC.csv','A33LYSCQQU1YDJ.csv','A3RHJEMZ4EGY2U.csv','A3V2XCDF45VN9X.csv','ACKG8OU1KHKO2.csv','AOS2PVHT2HYTL.csv','AQXEQDTAU4MJ4.csv','AOOLS8280CL0Z.csv'};
+% batch of 38/40
+subj2 = {'A2VNWJU49OOVFC','AOS2PVHT2HYTL','ACKG8OU1KHKO2','A3RHJEMZ4EGY2U',...
+    'A1Q56N80RJLQ7S','A2PIFMM4Q2I9ZS','AQXEQDTAU4MJ4','A10JXOU89D5RXR',...
+    'A1I72NHC21347A','A3V2XCDF45VN9X','A2APG8MSLJ6G2K','A33LYSCQQU1YDJ',...
+    'AOOLS8280CL0Z','A30RAYNDOWQ61S','A2R75YFKVALBXE','A2XQ3CFB5HT2ZQ',...
+    'ACAJFF4MF5S5X','A2SKXKH9YXZYRI','AC8ETQXPDRR6P','ANK8K5WTHJ61C',...
+    'A1FVXS8IM5QYO8','ADVJB810K4OYR','A12FTSX85NQ8N9','AUAN582MLI96N',...
+    'AFK9ALQK5GPNG','A3KH1OG87C8DCM','A98E8M4QLI9RS','A324VBRLXHG5IB',...
+    'A2CEHL1T8C927W','A2FYFCD16Z3PCC','AW0MG225VXWCN','AOIR8V07FYMH5',...
+    'APGX2WZ59OWDN','A2Y87M8V0N1M6P','A3FNC8ELMK8YJA','A198MSVO1VTAT5',...
+    'A3KF6O09H04SP7','A3JI3B5GTVA95F'};
 
-cutoff = 0.6;% cutoff percentage [0 1]
+
+% all subjects
+subj = [subj1 subj2];
+
+cutoff = 0.7;% cutoff percentage [0 1]
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -30,11 +47,13 @@ for s = 1:length(subj)
     incorr = sum(strcmp(A(40:end,12), 'false'));
     pcorr(s) = corr/(corr+incorr);
 end
-histogram(pcorr,20)
-xlabel('% Accuracy'); ylabel('# of Subjects');
+figure; hold on;
+histogram(pcorr,25); 
+xlabel('% Accuracy'); ylabel('# of Subjects'); xlim([0 1]); box off; set(gcf,'Position',[200 200 800 300])
 subj = subj(find(pcorr>cutoff)); % filter by percent correct >cutoff%
 
 data.legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
+% exclude anyone who did <30% on 
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -74,18 +93,18 @@ for s = 1:length(subj)
     data(s).acc = str2double(A(trial_idx,12)); % accuracy: correct or not
     data(s).r = cell2mat(A(trial_idx+1,15));   % reward
     data(s).rt = str2double(A(trial_idx,1));   % reaction time
-    
+    data(s).N = length(data(s).s);
     data(s).block = [];
     for n = 1:length(trials_per_block)
         data(s).block = [data(s).block n*ones(1,trials_per_block(n))];
     end
     
     % reward functions
-    data(s).condQ(1).Q = [0.8,0.2; 0.2,0.8];
-    data(s).condQ(2).Q =[0.6, 0.4; 0.4, 0.6; 0.6, 0.4; 0.4, 0.6];
-    data(s).condQ(3).Q =[0.8, 0.2; 0.2, 0.8; 0.8, 0.2; 0.2, 0.8];
-    data(s).condQ(4).Q =[0.8, 0.2; 0.2, 0.8; 0.6, 0.4; 0.4, 0.6];
-    data(s).condQ(5).Q =[0.8, 0.2; 0.2, 0.8; 1, 0; 0, 1];
+    data(s).condQ(1).Q = [0.8, 0.2; 0.2, 0.8];
+    data(s).condQ(2).Q = [0.6, 0.4; 0.4, 0.6; 0.6, 0.4; 0.4, 0.6];
+    data(s).condQ(3).Q = [0.8, 0.2; 0.2, 0.8; 0.8, 0.2; 0.2, 0.8]; 
+    data(s).condQ(4).Q = [0.8, 0.2; 0.2, 0.8; 0.6, 0.4; 0.4, 0.6];
+    data(s).condQ(5).Q = [0.8, 0.2; 0.2, 0.8; 1, 0; 0, 1];
     
     data(s).cond = zeros(1,n_trials)';
     rew_fun = cell2mat(cellfun(@str2num,A(trial_idx,13),'uniform',0)); % reward functions

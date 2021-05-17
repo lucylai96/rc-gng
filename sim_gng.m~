@@ -1,38 +1,4 @@
-function [simdata, simresults] = sim_gng(data,results)
-
-% PURPOSE: simulate go-nogo experiment for diff controllabilities
-% INPUT:
-% Written by: Lucy Lai
-
-rng(0);    % set random seed for reproducibility
-close all; prettyplot
-
-if nargin < 1; load gng_data.mat; end
-if nargin < 2; load model_fits; end
-
-for s = 1:length(data)
-    agent.lrate_beta = 0;
-    agent.beta0 = 1;
-    agent.lrate_p = 0;
-    agent.C = [];
-    for k = 1:length(results.param)
-        agent.(results.param(k).name) = results.x(s,k);
-    end
-    simdata(s) = actor_critic_gng(agent,data(s));
-end
-
-simresults = analyze_gng(simdata);
-
-plot_figures('reward-complexity',simresults,simdata);
-plot_figures('bias-complexity',simresults,simdata);
-plot_figures('conditions',simresults,simdata);
-plot_figures('gobias',simresults,simdata);
-plot_figures('beta-complexity',simresults,simdata);
-pause(1);
-plot_figures('mov_params',simresults,simdata);
-end
-
-function [simdata, simresults] = sim_gng0(m)
+function [simdata, simresults] = sim_gng(m)
 % function sim_gng(data,results)
 
 % PURPOSE: simulate go-nogo experiment for diff controllability and set sizes?
@@ -83,6 +49,38 @@ end
 
 simresults = analyze_gng(simdata);
 simdata(1).legStr = legStr;
+
+plot_figures('reward-complexity',simresults,simdata);
+plot_figures('bias-complexity',simresults,simdata);
+plot_figures('conditions',simresults,simdata);
+plot_figures('gobias',simresults,simdata);
+plot_figures('beta-complexity',simresults,simdata);
+pause(1);
+plot_figures('mov_params',simresults,simdata);
+
+%% 
+ if nargin < 1
+        data = load_data;
+    end
+
+    if nargin < 2
+        load model_fits;
+        results = results(1);
+    end
+
+    for s = 1:length(data)
+
+        agent.lrate_beta = 0;
+        agent.lrate_p = 0;
+        agent.C = [];
+        for k = 1:length(results.param)
+            agent.(results.param(k).name) = results.x(s,k);
+        end
+
+        simdata(s) = actor_critic_gng(agent,data(s));
+    end
+
+    simresults = analyze_gng(simdata);
 
 plot_figures('reward-complexity',simresults,simdata);
 plot_figures('bias-complexity',simresults,simdata);

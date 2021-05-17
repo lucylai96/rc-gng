@@ -3,7 +3,7 @@ var instructions_block = {
   pages: [
     // Welcome (page 1)
     '<p class="center-content">Welcome to the experiment!</p>' +
-    '<p class="center-content">You will earn $1 plus a performance-dependent bonus of $0-15 for completing this HIT.</p>' +
+    '<p class="center-content">You will earn $7 plus a performance-dependent bonus of $0-10 for completing this HIT.</p>' +
     '<p class="center-content">Press "Next" to view the game instructions.</p>',
     // Instructions (page 2)
     '<p class="center-content">The purpose of this experiment is to learn when to press a key in response to colored squares that appear on the screen to obtain monetary reward.</p>' +

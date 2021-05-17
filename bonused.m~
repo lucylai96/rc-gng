@@ -1,0 +1,18 @@
+function bonused
+expt = {'292905''293786','293787'};
+
+for i = 1:length(expt)
+    A = readtable(expt{i});
+    A = table2cell(A);
+    
+    if i == 1 % how much bonused
+        bonus = cell2mat(A(:,9))+7;
+    else
+        bonus = cell2mat(A(:,9))+1;
+    end
+    figure; hold on;
+    histogram(bonus,25);
+    xlabel('Payout'); ylabel('# of Subjects'); xlim([0 17]); box off; set(gcf,'Position',[200 200 800 300])
+    
+end
+end
