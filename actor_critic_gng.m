@@ -14,13 +14,13 @@ for c = 1:length(C)
     corchoice = data.corchoice(ix);    % correct choice on each trial
     R = data.condQ(c).Q;
     setsize = length(unique(state));   % number of distinct stimuli
-    nA = length(unique(action));       % number of distinct actions
+    nA = 2;                            % number of distinct actions
     theta = zeros(2,1);                % policy parameters
     V = zeros(setsize,1);              % state values
-    Q = zeros(setsize,nA);             % state-action values
+    Q = zeros(setsize,2);              % state-action values
     beta = agent.beta;
-    p = ones(1,nA)/nA;        % marginal action probabilities
-    ecost = 0;
+    p = ones(1,2)/2;                   % marginal action probabilities
+    ecost = 0; 
     
     for t = 1:length(state)
         s = state(t);

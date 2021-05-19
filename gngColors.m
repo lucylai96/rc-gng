@@ -4,9 +4,10 @@ addpath '/Users/lucy/Google Drive/Harvard/Projects/mat-tools/'
 prettyplot
 
 if n > 4
-    %map = brewermap(n+2,'Blues');
-    %map = map(2:end,:);
-    map = brewermap(n,'Set1');
+    map1 = brewermap(n,'Set1');
+    map2 = brewermap(n,'Pastel1');
+    d = map2-map1;
+    map = map1+d/2;
 else
     map = brewermap(n,'*RdBu');
 end

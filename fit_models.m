@@ -16,14 +16,13 @@ end
 for m = models
     
     switch m
-        case 1 % 4 free params: beta, lrate_theta, lrate_V, lrate_p
+        case 1 % 4 free params: lrate_theta, lrate_V, lrate_p
             likfun = @actor_critic_lik; % NO COST MODEL
-            param(1) = struct('name','beta','lb',0,'ub',50,'logpdf',@(x) 0);
-            param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0);
-            param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0);
-            param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) 0);
+            param(1) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0);
+            param(2) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0);
+            param(3) = struct('name','b','lb',0,'ub',1,'logpdf',@(x) 0); % b is initial bias to start at Go
             
-        case 2 % 5 free params: C, lrate_theta, lrate_V, lrate_beta, b | fixed: lrate_p = 0, beta0 = 1 (beta is learned starting from beta0 = 0.1)
+        case 2 % 5 free params: C, lrate_theta, lrate_V, lrate_beta, b | fixed: lrate_p = 0, beta0 = 1 (beta is learned starting from beta0)
             likfun = @actor_critic_lik;
             param(1) = struct('name','C','lb',0.01,'ub',log(3),'logpdf',@(x) 0);
             param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0);

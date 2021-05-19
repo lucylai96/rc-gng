@@ -2,8 +2,9 @@ function bonus_subjects
 % analyze raw data and store into structure
 clear all
 
-subj = {'A273DS7TQWR9M1','A12XVSIL669PVI','AA4O2W236E3FW','A9HQ3E0F2AGVO','A1GKD3NG1NNHRP','A1HRH92NH49RX2','A2VNSNAN1LZBAM','A2871R3LEPWMMK','A1SISJL5ST2PWH','A2ZDEERVRN5AMC','A4ZPIPBDO624H'};
-
+%'A2NHFSO7GMM8QR','A1K8VUKRL53OX'
+subj = {};
+ 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
     % 6:internal_node_id   7: view_history
@@ -20,14 +21,37 @@ for s = 1:length(subj)
     
     rew = sum(cell2mat(A(:,15))==1);
     unrew = sum(cell2mat(A(:,15))==0);
-    bonus2(s,:) = rew/(rew+unrew) * 10; % subj1
-    %bonus2(s,:) = rew/(rew+unrew) * 15; % subj2
+    bonus2(s,:) = rew/(rew+unrew) * 10; % subj2
     
     % display bonuses
-    disp(strcat(subj{s},':', num2str(bonus2(s,:)))) % later you can generate automatic CSV to bonus people :D
+     disp(strcat(subj{s},':', num2str(bonus2(s,:))))   % later you can generate automatic CSV to bonus people :D
     
     
 end
 pcorr
 writecell([subj',num2cell(bonus2)],'bonus.csv')
+
+bonused
+end
+
+function bonused
+% see how much was bonused
+
+expt = {'292905','293787','294904'};
+figure; hold on;
+for i = 1:length(expt)
+    A = readtable(expt{i});
+    A = table2cell(A);
+    
+    if i == 1 % how much bonused
+        bonus = cell2mat(A(:,9))+7;
+    else
+        bonus = cell2mat(A(:,9))+1;
+    end
+    
+    histogram(bonus,20);
+    xlabel('$ Payout'); ylabel('# of Subjects'); xlim([0 17]); box off; set(gcf,'Position',[200 200 800 300])
+    
+end
+legend('$7+bonus','$1+bonus')
 end

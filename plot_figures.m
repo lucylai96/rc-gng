@@ -12,7 +12,7 @@ if nargin < 3; load gng_data.mat; end %data = analyze_rawdata; end
 if nargin < 1 % plot all figures
     close all
     %fig = {'reward-complexity','bias-complexity','conditions','gobias','beta-complexity'};
-    fig = [];
+    fig = 1;
     plot_figures('reward-complexity');
     plot_figures('bias-complexity');
     plot_figures('conditions');
@@ -61,7 +61,7 @@ switch fig
         [r,p] = corr(x(:),y(:),'type','spearman')
         
         xlabel('Policy complexity');
-        ylabel('Bias');
+        ylabel('Residuals');
         legend(H,legStr)
         
     case 'conditions'
@@ -70,32 +70,39 @@ switch fig
         subplot 121; hold on;
         x = 1:C;
         for c = 1:C
-            scatter(c*ones(size(results.R_data,1),1),results.R_data(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+            scatter(c*ones(size(results.R_data,1),1),results.R_data(:,c),150,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
         end
         hold on;
         [mu,~,ci] = normfit(results.R_data);
         err = diff(ci)/2;
-        errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
+        hBar = errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
+        ctr2 = bsxfun(@plus, hBar.XData, [hBar.XOffset]');
+        hold on
+        plot(ctr2(1:2), [1 1]*x(1,2)*1.1, '-k', 'LineWidth',2)
+        plot(mean(ctr2(1:2)), x(1,2)*1.15, '*k')
+        hold off
         
         ylabel('Policy complexity');
-        xlabel('Condition');
+        xticks([1:C])
+        xticklabels(legStr); xtickangle(45) 
         xlim([0 6])
         hold on;
-        % does each condition have diff biases?
+        
+        % does each condition have diff residuals?
         subplot 122; hold on;
         
         for c = 1:C
-            scatter(c*ones(size(results.bias,1),1),results.bias(:,c),100,map(c,:),'filled','MarkerEdgeColor',[0.5 0.5 0.5],'LineWidth',1.5,'MarkerFaceAlpha',0.6','jitter','on','jitterAmount',0.1); hold on;
+            scatter(c*ones(size(results.bias,1),1),results.bias(:,c),150,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
         end
         hold on;
         [mu,~,ci] = normfit(results.bias);
         err = diff(ci)/2;
-        
         errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
-        xlabel('Condition');
-        ylabel('Bias');
+        xticks([1:C])
+        xticklabels(legStr); xtickangle(45) 
+         ylabel('Residuals');
         xlim([0 6])
-        %set(gcf,'Position',[200 200 1200 800])
+        set(gcf,'Position',[200 200 1000 450])
         
     case 'gobias'
         figure; hold on;
@@ -153,7 +160,7 @@ switch fig
         legend(handles,legStr)
         ylabel('Go bias');
         xlabel('Trials');
-        ylim([0 1])
+        axis tight
         xlim([0 length(go)])
         
         set(gcf,'Position',[200 200 500 1200])

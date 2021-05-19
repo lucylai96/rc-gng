@@ -75,7 +75,7 @@ for c = 1:length(C)
         if agent.m > 1                         % if it's a cost model
             rpe = beta*r - cost - V(s);        % reward prediction error
         else
-            rpe = beta*r - V(s);               % reward prediction error w/o cost
+            rpe = r - V(s);                    % reward prediction error w/o cost
         end
         
         g = rpe*phi(:,a)*(1 - policy(a));              % policy gradient

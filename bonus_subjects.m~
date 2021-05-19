@@ -2,7 +2,15 @@ function bonus_subjects
 % analyze raw data and store into structure
 clear all
 
-subj = {'A273DS7TQWR9M1','A12XVSIL669PVI','AA4O2W236E3FW','A9HQ3E0F2AGVO','A1GKD3NG1NNHRP','A1HRH92NH49RX2','A2VNSNAN1LZBAM','A2871R3LEPWMMK','A1SISJL5ST2PWH','A2ZDEERVRN5AMC','A4ZPIPBDO624H'};
+subj = {'A2JDYN6QM8M5UN','ABW8U1U74P8MI','ALEE1QD4TW9G4','A1JJYY622DGE5L',...
+'A32JEH06T23HDF','A37OUZOGQKGMW0','A12FTSX85NQ8N9','A3KF6O09H04SP7',...
+'A3S3WYVCVWW8IZ','A2YHF0DPCO832L','AOOLS8280CL0Z',...
+'A2ONILC0LZKG6Y','AUQ79MANVDU9B','A2APG8MSLJ6G2K','A2LAMCJLVCRQ4T',...
+'A2WPKP73S4MBLK','AJRY9ALX8069Y','A1W7I6FN183I8F','A3FGT6EU39C6S4',...
+'A2FGKKWP33DFWS','A2F1AA15HG0FRU','A198MSVO1VTAT5','A6HDSE80LQPR8',...
+'A3V2XCDF45VN9X','A2BNOEYZ3VRW2R','A9MJVJAMLCDMV','A2NAKIXS3DVGAA',...
+'A2R9OK4M877ZCC','A3180VXVP8MOIH','A110KENBXU7SUJ','A1ZT30BGR3266K',...
+'AJXIC6Q5EM76P','A3JC9VPPTHNKVL','A1K8VUKRL53OX'};
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -20,15 +28,37 @@ for s = 1:length(subj)
     
     rew = sum(cell2mat(A(:,15))==1);
     unrew = sum(cell2mat(A(:,15))==0);
-    %bonus2(s,:) = rew/(rew+unrew) * 10; % subj1
-    bonus2(s,:) = rew/(rew+unrew) * 15; % subj2
+    bonus2(s,:) = rew/(rew+unrew) * 10; % subj2
     
     % display bonuses
-    %disp(strcat(subj{s},':', num2str(pcorr(s)*15))) % actually correct
-    disp(strcat(subj{s},':', num2str(bonus2(s,:)))) % later you can generate automatic CSV to bonus people :D
+     disp(strcat(subj{s},':', num2str(bonus2(s,:))))   % later you can generate automatic CSV to bonus people :D
     
     
 end
-
+pcorr
 writecell([subj',num2cell(bonus2)],'bonus.csv')
+
+bonused
+end
+
+function bonused
+% see how much was bonused
+
+expt = {'292905','293787'};
+figure; hold on;
+for i = 1:length(expt)
+    A = readtable(expt{i});
+    A = table2cell(A);
+    
+    if i == 1 % how much bonused
+        bonus = cell2mat(A(:,9))+7;
+    else
+        bonus = cell2mat(A(:,9))+1;
+    end
+    
+    histogram(bonus,20);
+    xlabel('$ Payout'); ylabel('# of Subjects'); xlim([0 17]); box off; set(gcf,'Position',[200 200 800 300])
+    
+end
+legend('$7+bonus','$1+bonus')
 end
