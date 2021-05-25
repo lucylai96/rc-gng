@@ -3,7 +3,7 @@ function bonus_subjects
 clear all
 
 %'A2NHFSO7GMM8QR','A1K8VUKRL53OX'
-subj = {};
+subj = {'AW0K78T4I2T72'};
  
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -37,13 +37,13 @@ end
 function bonused
 % see how much was bonused
 
-expt = {'292905','293787','294904'};
+expt = {'293787','292905','294904'};
 figure; hold on;
 for i = 1:length(expt)
     A = readtable(expt{i});
     A = table2cell(A);
     
-    if i == 1 % how much bonused
+    if i > 1 % how much bonused
         bonus = cell2mat(A(:,9))+7;
     else
         bonus = cell2mat(A(:,9))+1;

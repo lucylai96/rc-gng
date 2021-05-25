@@ -38,7 +38,7 @@ ylabel('Average reward')
 
 
 for i = 1:s
-    data(i).state = [cond.state];
+    data(i).s = [cond.state];
     data(i).corchoice = [cond.corchoice];
     data(i).cond = [ones(1,trials/2)];
     data(i).cond = [];

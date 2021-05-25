@@ -10,7 +10,7 @@ simdata = data;
 C = unique(data(1).cond);
 for c = 1:length(C)
     ix = find(data.cond==C(c));
-    state = data.state(ix);
+    state = data.s(ix);
     corchoice = data.corchoice(ix);    % correct choice on each trial
     R = data.condQ(c).Q;
     setsize = length(unique(state));   % number of distinct stimuli
@@ -19,8 +19,8 @@ for c = 1:length(C)
     V = zeros(setsize,1);              % state values
     Q = zeros(setsize,2);              % state-action values
     beta = agent.beta;
-    p = ones(1,2)/2;                   % marginal action probabilities
-    ecost = 0; 
+    p = ones(1,nA)/nA;                   % marginal action probabilities
+    ecost = 0;
     
     for t = 1:length(state)
         s = state(t);
@@ -39,10 +39,10 @@ for c = 1:length(C)
         r = fastrandsample(R(s,a)); % reward
         
         cost = logpolicy(a) - log(p(a));               % policy complexity cost
-        if agent.m == 1
+        if agent.m > 1
             rpe = beta*r - cost - V(s);                % reward prediction error
         else
-            rpe = beta*r - V(s);                       % reward prediction error
+            rpe = r - V(s);                            % reward prediction error
         end
         g = rpe*phi(:,a)*(1 - policy(a));              % policy gradient
         V(s) = V(s) + agent.lrate_V*(r-V(s));          % state value update
@@ -50,7 +50,7 @@ for c = 1:length(C)
         ecost = ecost + agent.lrate_e*(cost-ecost);    % policy cost update
         
         if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*(agent.C-ecost);
+            beta = beta + agent.lrate_beta*(agent.C-cost);
             %beta = beta + agent.lrate_beta*(agent.C-cost)*((theta'*phi)-(theta(s,:)*policy'));
             beta = max(min(beta,50),0);
         end
@@ -66,7 +66,7 @@ for c = 1:length(C)
         simdata.acc(ix(t)) = acc;
         simdata.expreward(ix(t)) = policy(corchoice(t));
         simdata.beta(ix(t)) = beta;
-        simdata.cost(ix(t)) = ecost;
+        simdata.cost(ix(t)) = cost;
         simdata.theta(ix(t),:) = theta;
         
     end

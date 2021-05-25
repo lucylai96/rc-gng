@@ -1,4 +1,4 @@
-function data = analyze_rawdata
+function [data, cutoff] = analyze_rawdata
 % analyze raw data and store into structure
 
 clear all
@@ -28,7 +28,7 @@ subj2 = {'A2VNWJU49OOVFC','AOS2PVHT2HYTL','ACKG8OU1KHKO2','A3RHJEMZ4EGY2U',...
     'APGX2WZ59OWDN','A2Y87M8V0N1M6P','A3FNC8ELMK8YJA','A198MSVO1VTAT5',...
     'A3KF6O09H04SP7','A3JI3B5GTVA95F','AUFUUD4WG9CVO','A1I72NHC21347A'};
 
-% batch of 47/48 (OG 50--missing 2 subjects data)
+% batch of 48/48 (OG 50--missing 2 subjects data)
 subj3 = {'A2JDYN6QM8M5UN','ABW8U1U74P8MI','ALEE1QD4TW9G4','A1JJYY622DGE5L',...
 'A32JEH06T23HDF','A37OUZOGQKGMW0','A12FTSX85NQ8N9','A3KF6O09H04SP7',...
 'A3S3WYVCVWW8IZ','A2YHF0DPCO832L','AOOLS8280CL0Z','A2ONILC0LZKG6Y',...
@@ -40,14 +40,13 @@ subj3 = {'A2JDYN6QM8M5UN','ABW8U1U74P8MI','ALEE1QD4TW9G4','A1JJYY622DGE5L',...
 'A3JC9VPPTHNKVL','A2YTO4EY3MNYAJ','A1Z3NTRGIUZ240','A11S8IAAVDXCUS',...
 'AN9MVFWRCF2OP','A2FL477TMKC91L','A1FVXS8IM5QYO8','A1PJLZSOUQ4MIL',...
 'A324VBRLXHG5IB','A37JC45Y9GLSA7','A10249252O9I20MRSOBVF','A11TPUPFP2S4MK',...
-'A1NKBIJQGT0712','A2P065E9CYMYJL','AMTTB8JUWRRM7'};
+'A1NKBIJQGT0712','A2P065E9CYMYJL','AMTTB8JUWRRM7','AW0K78T4I2T72'};
 
 
 % all subjects
 %subj = [subj1 subj2 subj3];
-subj = [subj1 subj3]; % 60%: 48/82, 55%: 60/82, 50%: 73/82 
-
-cutoff = 0.55;% cutoff percentage [0 1]
+subj = [subj1 subj3]; % 0.6: 52/88 (59%)| 0.55: 64/88 (73%)| 0.5: 78/88 (88%) | 0.53: 70/88 (80%)
+cutoff = 0.50; % percentage accuracy cutoff
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed
@@ -105,6 +104,7 @@ for s = 1:length(subj)
     [~,~,bin] = unique(A(:,14),'sorted');
     data(s).s =  bin(bin>1 & ~isnan(cell2mat(A(:,15))))-1; % states
     data(s).a = double(str2double(A(trial_idx,9))==32) + 1; % 1 = no-go, 2 = go
+    data(s).corchoice = (str2double(A(trial_idx,11))==32)+1; % what is the correct choice?
     data(s).acc = str2double(A(trial_idx,12)); % accuracy: correct or not
     data(s).r = cell2mat(A(trial_idx+1,15));   % reward
     data(s).rt = str2double(A(trial_idx,1));   % reaction time
@@ -137,5 +137,5 @@ for s = 1:length(subj)
 end
 
 % save in a MAT file
-save('gng_data.mat','data')
+save(strcat('gng_data.mat'),'data')
 end

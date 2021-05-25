@@ -4,38 +4,27 @@ function [lik,latents] = actor_critic_lik(x,data)
 %
 % USAGE: [lik,latents] = actor_critic_lik(x,data)
 
-if length(x)==4    % no cost model
+if length(x)==2   % no cost model
     agent.m = 1;
-    agent.C = x(1);
-    agent.lrate_theta = x(2);
-    agent.lrate_V = x(3);
+    agent.C = [];
+    agent.lrate_theta = x(1);
+    agent.lrate_V = x(2);
     agent.beta0 = 1;
-    agent.lrate_beta = x(4);
-    agent.beta0 = 1;
+    agent.lrate_beta = 0;
     agent.lrate_p = 0;
-    agent.lrate_e = 0.05;
-    %agent.b = x(5);
+    agent.lrate_e = 0.1;
+    agent.b = 1;
     
-elseif length(x)==5 % 'best' model
+elseif length(x)==3 % 'best' model
     agent.m = 2;
-    agent.C = x(1);
-    agent.lrate_theta = x(2);
-    agent.lrate_V = x(3);
+    agent.C = 1;
+    agent.lrate_theta = x(1);
+    agent.lrate_V = x(2);
     agent.beta0 = 1;
-    agent.lrate_beta = x(4);
+    agent.lrate_beta = x(3);
     agent.lrate_p = 0;
-    agent.b = x(5);
-    agent.lrate_e = 0.05;
-    
-elseif length(x)==6
-    agent.m = 3;
-    agent.C = x(1);
-    agent.lrate_theta = x(2);
-    agent.lrate_V = x(3);
-    agent.beta0 = x(4);
-    agent.lrate_beta = x(5);
-    agent.lrate_p = x(6);
-    agent.lrate_e = 0.05;
+    agent.lrate_e = 0.1;
+    agent.b = 1;
 end
 
 C = unique(data(1).cond);
@@ -84,7 +73,7 @@ for c = 1:length(C)
         ecost = ecost + agent.lrate_e*(cost-ecost);    % policy cost update
         
         if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*(agent.C-ecost);
+            beta = beta + agent.lrate_beta*(agent.C-cost);
             % beta = beta + agent.lrate_beta*(agent.C-cost)*(theta(s,a)-(theta(s,:)*policy'));
             beta = max(min(beta,50),0);
         end
@@ -93,7 +82,7 @@ for c = 1:length(C)
             p = p + agent.lrate_p*(policy - p); p = p./sum(p);  % marginal update
         end
         
-        theta = theta + agent.lrate_theta*g/t;        % policy parameter update
+        theta = theta + agent.lrate_theta*g;                  % policy parameter update
         
         if nargout > 1                                          % if you want to collect the latents
             latents.rpe(ii(t)) = rpe;

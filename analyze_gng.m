@@ -20,7 +20,7 @@ for s = 1:length(data)
         action = data(s).a(ix);
         Ps = ones(1,length(unique(state)))/length(unique(state));
         
-        R_data(s,c) = mutual_information(state,action,0.1);
+        R_data(s,c) = mutual_information(state,action,0.01);
         V_data(s,c) = mean(data(s).r(ix));
         
         if C(c) == 3
@@ -32,6 +32,12 @@ for s = 1:length(data)
         
         results.R(s,:,c) = R(c,:); % S subjects x 50 betas x C conditions
         results.V(s,:,c) = V(c,:);
+        
+        gb(s,c) = mean(data(s).acc(data(s).s==1 & data(s).cond==c)) - mean(data(s).acc(data(s).s==2 & data(s).cond==c)); % go - nogo
+        go = data(s).acc(data(s).s==1 & data(s).cond==c);
+        nogo = data(s).acc(data(s).s==2 & data(s).cond==c);
+        gobias(s,1:length(go),c) = movmean(go-nogo,10);
+        
     end
     
     clear R V
@@ -52,7 +58,10 @@ for c = 1:length(C)
 end
 results.bias(isnan(results.bias)) = 0;
 
+results.gobias =  gobias; % dynamic go bias
+results.gb =  gb; % static go bias
+
 % save data
-save('gng_results.mat','results');
+%save('gng_results.mat','results');
 
 end
