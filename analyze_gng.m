@@ -62,6 +62,6 @@ results.gobias =  gobias; % dynamic go bias
 results.gb =  gb; % static go bias
 
 % save data
-%save('gng_results.mat','results');
+% save('gng_results.mat','results');
 
 end

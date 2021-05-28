@@ -1,4 +1,4 @@
-function plot_figures(fig, results, data)
+function plot_figures(fig, results, data, mresults)
 % Plot figures for Pavlovian bias as policy compression
 %
 % USAGE: plot_figures(fig,[results],[data])
@@ -6,17 +6,21 @@ function plot_figures(fig, results, data)
 % INPUTS:
 %   fig - {'fig2', 'fig3', 'fig4'}
 
-if nargin < 2; load gng_results.mat; end % results = analyze_gng(data)
-if nargin < 3; load gng_data.mat; end %data = analyze_rawdata; end
+if nargin < 2; load('gng_results.mat'); end
+if nargin < 3; load('gng_data.mat'); end
+if nargin < 4; model = load('model_fits4.mat'); mresults = model.results; end
 
 if nargin < 1 % plot all figures
     fig = 1;
-    plot_figures('params');
+    %plot_figures('params');
+    %plot_figures('param-corr');
     plot_figures('reward-complexity');
     plot_figures('bias-complexity');
     plot_figures('gobias');
+    plot_figures('bar-gb-pc');
     plot_figures('beta-complexity');
-    
+    %plot_figures('param-corr');
+    %plot_figures('params');
 end
 
 rng(1); % set random seed for reproducibile bootstrapped confidence intervals
@@ -86,47 +90,14 @@ switch fig
         set(gcf,'Position',[0 300 1200 500])
         
         
-        % compare policy complexities between groups
-        % separate by control and similarity
-        figure; hold on;
-        pc = results.R_data;
-        ctrlpc = [[pc(:,2);pc(:,4)],[pc(:,3);pc(:,5)]]; % cluster by LC vs HC
-        simpc = [[pc(:,4);pc(:,5)],[pc(:,2);pc(:,3)]]; % cluster by HS vs LS
         
+    case 'bias-complexity' % residuals vs complexity | go bias vs complexity
+        
+        % residuals vs complexity
+        figure; hold on;
         subplot 121; hold on;
-        [h] = barwitherr(sem(ctrlpc,1),mean(ctrlpc),'FaceColor','flat');
-        h.CData(1,:) = [0 0 0]; hold on;
-        h.CData(2,:) = [1 1 1]; hold on;
-        ylabel('Policy complexity');
-        title('LowCtrl vs. HiCtrl')
-        xlim([0 3])
-        xticks([]);
-        
-        subplot 122; hold on;
-        [h] = barwitherr(sem(simpc,1),mean(simpc),'FaceColor','flat');
-        h.CData(1,:) = [0 0 0]; hold on;
-        h.CData(2,:) = [1 1 1]; hold on;
-        ylabel('Policy Complexity');
-        title('LowSim vs. HiSim')
-        xticks([]);
-        yline = 0.32;
-        %line([1 2],[yline yline],'LineWidth',3 ,'Color','black')
-        %text(1.5, yline+0.01,'*','FontSize',30)
-        %text(1.5, yline+0.02,'      p<0.05','FontSize',17)
-        %axis tight
-        xlim([0 3])
-        equalabscissa(1,2)
-        
-        set(gcf,'Position',[300 500 900 300])
-       
-        
-        
-    case 'bias-complexity'
-        
-        figure; hold on;
         x = results.R_data;
         y = results.bias;
-        
         
         plot(x(:),y(:),'.'); hold on;
         H = lsline; set(H,'LineWidth',3,'Color','k');
@@ -144,32 +115,75 @@ switch fig
         
         xlabel('Policy complexity');
         ylabel('Deviation from optimality');
-        legend(H,legStr)
+        %legend(H,legStr)
         
-    case 'gobias'
+        % go bias vs complexity
+        x = results.R_data;
+        y = results.gb;
+        subplot 122; hold on;
+        plot(x(:),y(:),'.','MarkerSize',30)
+        H = lsline; set(H,'LineWidth',3,'Color','k');
+        xlabel('Policy complexity');
+        ylabel('Go bias');
+        
+        set(gcf,'Position',[0 300 1000 300])
+        
+    case 'bar-gb-pc'
+        % bar plots for go bias and policy complexity grouped by control
+        % and similarity
+        
+        % compare policy complexities between groups
         figure; hold on;
-        gb=results.gb;
-        gobias = results.gobias;
-        err = sem(gb,1);
-        m = mean(gb);
+        pc = results.R_data;
         
-        %[m,~,ci] = normfit(gb);
-        %err = diff(ci)/2;
+         % separate by control and similarity
+        ctrlpc = [[pc(:,2);pc(:,4)],[pc(:,3);pc(:,5)]]; % cluster by LC vs HC
+        simpc = [[pc(:,4);pc(:,5)],[pc(:,2);pc(:,3)]]; % cluster by HS vs LS
         
-        % separate by control and similarity
+        subplot 221; hold on;
+        [h] = barwitherr(sem(ctrlpc,1),mean(ctrlpc),'FaceColor','flat');
+        h.CData(1,:) = [0 0 0]; hold on;
+        h.CData(2,:) = [1 1 1]; hold on;
+        ylabel('Policy complexity');
+        title('LowCtrl vs. HiCtrl')
+        xlim([0 3])
+        ylim([0 0.3])
+        xticks([]);
+        
+        subplot 222; hold on;
+        [h] = barwitherr(sem(simpc,1),mean(simpc),'FaceColor','flat');
+        h.CData(1,:) = [0 0 0]; hold on;
+        h.CData(2,:) = [1 1 1]; hold on;
+        ylabel('Policy Complexity');
+        title('LowSim vs. HiSim')
+        xticks([]);
+        yline = 0.32;
+        %line([1 2],[yline yline],'LineWidth',3 ,'Color','black')
+        %text(1.5, yline+0.01,'*','FontSize',30)
+        %text(1.5, yline+0.02,'      p<0.05','FontSize',17)
+        %axis tight
+        xlim([0 3])
+        ylim([0 0.3])
+        
+        % compare go bias between groups
+        gb = results.gb;         % static
+        gobias = results.gobias; % dynamic
+        
+         % separate by control and similarity
         ctrlgb = [[gb(:,2);gb(:,4)],[gb(:,3);gb(:,5)]]; % cluster by LC vs HC
         simgb = [[gb(:,4);gb(:,5)],[gb(:,2);gb(:,3)]]; % cluster by LS vs HS
         
-        subplot 121; hold on;
+        subplot 223; hold on;
         [h] = barwitherr(sem(ctrlgb,1),mean(ctrlgb),'FaceColor','flat');
         h.CData(1,:) = [0 0 0]; hold on;
         h.CData(2,:) = [1 1 1]; hold on;
         ylabel('Go bias');
         title('LowCtrl vs. HiCtrl')
         xlim([0 3])
+        ylim([0 0.6])
         xticks([]);
         
-        subplot 122; hold on;
+        subplot 224; hold on;
         [h] = barwitherr(sem(simgb,1),mean(simgb),'FaceColor','flat');
         h.CData(1,:) = [0 0 0]; hold on;
         h.CData(2,:) = [1 1 1]; hold on;
@@ -182,21 +196,9 @@ switch fig
         %text(1.5, yline+0.02,'      p<0.05','FontSize',17)
         %axis tight
         xlim([0 3])
-        equalabscissa(1,2)
+        ylim([0 0.6])
         
-        set(gcf,'Position',[300 500 900 300])
-        
-        % go biases
-        figure; hold on;
-        subplot 311; hold on; % go bias bar
-        [h] = barwitherr(err,m,'FaceColor','flat');
-        for c = 1:C
-            h.CData(c,:) = map(c,:); hold on;
-        end
-        ylabel('Go bias');
-        axis tight
-        xlim([0 6])
-        xticks([]);
+        set(gcf,'Position',[300 500 800 800])
         
         disp('Setsize 2 vs. 4')
         [~,p,~,stat] = ttest(gb(:,1),gb(:,3));
@@ -234,7 +236,32 @@ switch fig
         % almost significant difference between low and high similarity (all control) p = 0.07
         % significant difference between low and high similarity for low control
         
-        subplot 312; hold on; % go bias bar
+       
+        
+    case 'gobias'
+     
+        gb = results.gb;         % static
+        gobias = results.gobias; % dynamic
+        err = sem(gb,1);
+        m = mean(gb);
+        
+        %[m,~,ci] = normfit(gb);
+        %err = diff(ci)/2;
+        
+       
+        % go biases
+        figure; hold on;
+        subplot 311; hold on; % go bias bar
+        [h] = barwitherr(err,m,'FaceColor','flat');
+        for c = 1:C
+            h.CData(c,:) = map(c,:); hold on;
+        end
+        ylabel('Go bias');
+        axis tight
+        xlim([0 6])
+        xticks([]);
+        
+        subplot 312; hold on; % go bias bar with indv subj
         [h] = barwitherr(err,m,'FaceColor','flat');
         for c = 1:C
             h.CData(c,:) = map(c,:); hold on;
@@ -284,27 +311,57 @@ switch fig
         legend(h,legStr)
         disp(['beta: ',num2str(b)]);
         
-    case 'params' % only for model
-        load model_fits.mat
-        
-        for m = 1:length(results) % for each fitted model
+    case 'param-corr'  % how do parameters explain go bias and complexity?\
+        for m = 1:length(mresults)           % for each fitted model
             figure; hold on;
-            subplot(size(results(m).x,2)+1,1,1); hold on;
-            %plot(results(m).x','k.','MarkerSize',20)
-            scatter([ones(size(results(m).x,1),1); 2*ones(size(results(m).x,1),1)],results(m).x(:),150,'k','filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.1); hold on;
-        
-            xlim([0 size(results(m).x,2)+1])
-            xticks([1:size(results(m).x,2)])
-            xticklabels({results(m).param.name})
-            
-            for i = 1:size(results(m).x,2)
-                subplot(size(results(m).x,2)+1,1,i+1); hold on;
-                histogram(results(m).x(:,i),25)
-                title(results(m).param(i).name)
+            for i = 1:size(mresults(m).x,2)  % for each parameter
+                for c = 1:C                  % for each condition
+                    subplot(2,size(mresults(m).x,2),i); hold on;
+                    scatter(mresults(m).x(:,i),results.gb(:,c),100,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.75); hold on;
+                end
+                H = lsline; set(H,'LineWidth',3,'Color','k');
+                title(mresults(m).param(i).label)
+                ylabel('Go bias')
             end
-            set(gcf, 'Position',  [0, 0, 400, 1200])
+        end
+        
+        for m = 1:length(mresults)           % for each fitted model
+            %figure; hold on;
+            for i = 1:size(mresults(m).x,2)  % for each parameter
+                for c = 1:C                  % for each condition
+                    subplot(2,size(mresults(m).x,2),i+size(mresults(m).x,2)); hold on;
+                    scatter(mresults(m).x(:,i),results.R_data(:,c),100,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.75','jitter','on','jitterAmount',0.12); hold on;
+                end
+                H = lsline; set(H,'LineWidth',3,'Color','k');
+                xlabel('Parameter value')
+                ylabel('Complexity')
+            end
+        end
+        
+        set(gcf,'Position',[300 300 1200 600])
+        
+    case 'params' % only for model
+        for m = 1:length(mresults) % for each fitted model
+            figure; hold on;
+            %subplot(size(results(m).x,2),1,1); hold on;
+            %plot(results(m).x','k.','MarkerSize',20)
+            %             for i = 1:size(results(m).x,2)
+            %             scatter(i*ones(size(results(m).x,1),1),results(m).x(:,i),150,'k','filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
+            %             end
+            %             xlim([0 size(results(m).x,2)+1])
+            %             xticks([1:size(results(m).x,2)])
+            %             xticklabels({results(m).param.name})
             
-            [simdata, simresults] = sim_gng(m,data,results);
+            for i = 1:size(mresults(m).x,2)
+                subplot(1,size(mresults(m).x,2),i); hold on;
+                histogram(mresults(m).x(:,i),25,'FaceColor','k')
+                %title(results(m).param(i).label)
+                title(mresults(m).param(i).label);
+                if i ==1;xlabel('Parameter value');end
+            end
+            set(gcf, 'Position',  [0, 0, 1200, 400])
+            
+            [simdata, simresults] = sim_gng(m,data,mresults);
             
             pause(1)
             figure; hold on;
@@ -364,9 +421,9 @@ switch fig
             plot_figures('reward-complexity',simresults,simdata);
             plot_figures('bias-complexity',simresults,simdata);
             plot_figures('gobias',simresults,simdata);
+            plot_figures('bar-gb-pc',simresults,simdata);
             plot_figures('beta-complexity',simresults,simdata);
-            close all
-             
+            pause
         end % for each fitted model
 end
 

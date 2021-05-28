@@ -15,13 +15,13 @@ if length(x)==2   % no cost model
     agent.lrate_e = 0.1;
     agent.b = 1;
     
-elseif length(x)==3 % 'best' model
+elseif length(x)==4 % 'best' model
     agent.m = 2;
-    agent.C = 1;
-    agent.lrate_theta = x(1);
-    agent.lrate_V = x(2);
+    agent.C = x(1);
+    agent.lrate_theta = x(2);
+    agent.lrate_V = x(3);
     agent.beta0 = 1;
-    agent.lrate_beta = x(3);
+    agent.lrate_beta = x(4);
     agent.lrate_p = 0;
     agent.lrate_e = 0.1;
     agent.b = 1;

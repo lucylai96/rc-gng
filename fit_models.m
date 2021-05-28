@@ -14,24 +14,31 @@ if nargin < 2
 end
 
 for m = models
-    
+    a = 2; b = 2;
     switch m
         case 1 % 4 free params: lrate_theta, lrate_V, lrate_p
             likfun = @actor_critic_lik; % NO COST MODEL
-            param(1) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0);
-            param(2) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0);
+            param(1) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\theta}');
+            param(2) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_V');
             %param(3) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) 0);
             %param(3) = struct('name','b','lb',0,'ub',1,'logpdf',@(x) 0); % b is initial bias to start at Go
             
         case 2 % 5 free params: C, lrate_theta, lrate_V, lrate_beta, b | fixed: lrate_p = 0, beta0 = 1 (beta is learned starting from beta0)
             likfun = @actor_critic_lik;
-            param(1) = struct('name','C','lb',0.01,'ub',log(3),'logpdf',@(x) 0);
-            param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0);
-            param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0);
-            param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) 0);
+            %param(1) = struct('name','C','lb',0.01,'ub',log(3),'logpdf',@(x) 0,'label','C');
+            %param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_{\theta}');
+            %param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_V');
+            %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_{\beta}');
+            
+            param(1) = struct('name','C','lb',0.01,'ub',log(8),'logpdf',@(x) 0,'label','C');
+            param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\theta}');
+            param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_V');
+            param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\beta}');
+           
             %param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) 0);
             %param(6) = struct('name','b','lb',0,'ub',1,'logpdf',@(x) 0); % b is initial bias to start at Go
             % TODO: also try model where b is fixed to 0.3
+            
             
     end
     
@@ -41,5 +48,5 @@ end
 
 bms_results = mfit_bms(results);
 
-save(strcat('model_fits.mat'),'results','bms_results')
+save(strcat('model_fits5.mat'),'results','bms_results')
 

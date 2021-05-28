@@ -6,23 +6,18 @@ function [simdata, simresults] = sim_gng0(m)
 % Written by: Lucy Lai
 
 addpath('/Users/lucy/Google Drive/Harvard/Projects/rc-behav/code/GoNogo-control/')
-rng(0); % set random seed for reproducibility
-%close all
+rng(1); % set random seed for reproducibility
 prettyplot
 
-% if nargin < 2
-%     load model_fits;
-%     results = results(1);
-% end
-
-prettyplot;
-
-% legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4','MedSim, LC, S = 4','MedSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
 legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
-data = generate_task(78,legStr); % number of simulated subjects
+data = generate_task(93,legStr); % number of simulated subjects
 
 % legStr = {'Low control','High control'};
 % data = generate_dorfman(100); % number of simulated subjects
+
+if m == 3
+    load model_fits4.mat
+end
 
 for s = 1:length(data)
     agent.lrate_theta = 0.3;
@@ -38,12 +33,18 @@ for s = 1:length(data)
             agent.beta0 = 3;
             
         case 2 % cost
-            agent.lrate_beta = 0.1;
+            agent.C = rand+0.2;
+            agent.lrate_beta = 1;
+            agent.beta0 = 1;
+            
+        case 3 % using the mean of the fitted models
+            x = results(2).x(s,:);
+            agent.C = x(1);
+            agent.lrate_theta = x(2);
+            agent.lrate_V = x(3);
+            agent.lrate_beta = 1;%x(4);
             agent.beta0 = 1;
     end
-    % for k = 1:length(results.param)
-    %    agent.(results.param(k).name) = results.x(s,k);
-    % end
     
     simdata(s) = actor_critic_gng(agent,data(s));
 end
@@ -53,8 +54,8 @@ simdata(1).legStr = legStr;
 
 plot_figures('reward-complexity',simresults,simdata);
 plot_figures('bias-complexity',simresults,simdata);
-plot_figures('conditions',simresults,simdata);
 plot_figures('gobias',simresults,simdata);
+plot_figures('bar-gb-pc',simresults,simdata);
 plot_figures('beta-complexity',simresults,simdata);
 pause(1);
 

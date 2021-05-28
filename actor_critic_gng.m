@@ -19,7 +19,8 @@ for c = 1:length(C)
     V = zeros(setsize,1);              % state values
     Q = zeros(setsize,2);              % state-action values
     beta = agent.beta;
-    p = ones(1,nA)/nA;                   % marginal action probabilities
+    p = ones(1,nA)/nA;                 % marginal action probabilities
+    p = [0.2689 0.7311];
     ecost = 0;
     
     for t = 1:length(state)

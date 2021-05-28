@@ -10,14 +10,12 @@ cond(1) = generate_cond(trials, states, Q2);
 [R(1,:),V(1,:)] = blahut_arimoto(Ps,Q2,beta);
 
 Q4(:,:,1) = [0.4 0.6; 0.6 0.4; 0.39 0.61; 0.61 0.39];  % S = 4, high similarity, LC, distance is 0
+%Q4(:,:,1) = [0.49 0.51; 0.51 0.49; 0.48 0.52; 0.52 0.48];  % S = 4, high similarity, LC, distance is 0
 
 Q4(:,:,2) = [0.2 0.8; 0.8 0.2; 0.19 0.81; 0.81 0.19];  % S = 4, high similarity, HC, distance is 0
 
-%Q4(:,:,3) = [0.2 0.8; 0.8 0.2; 0.3 0.7; 0.7 0.3];  % S = 4, med similarity, LC, distance is 0.1
-
-%Q4(:,:,4) = [0.2 0.8; 0.8 0.2; 0.1 0.9; 0.9 0.1];  % S = 4, med similarity, HC, distance is 0.1
-
 Q4(:,:,3) = [0.2 0.8; 0.8 0.2; 0.4 0.6; 0.6 0.4];  % S = 4, low similarity, LC, distance is 0.2
+%Q4(:,:,3) = [0.2 0.8; 0.8 0.2; 0.5 0.5; 0.5 0.5];  % S = 4, low similarity, LC, distance is 0.2
 
 Q4(:,:,4) = [0.2 0.8; 0.8 0.2; 0 1; 1 0];          % S = 4, low similarity, HC, distance is 0.2
 
