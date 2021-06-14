@@ -38,6 +38,13 @@ for s = 1:length(data)
         nogo = data(s).acc(data(s).s==2 & data(s).cond==c);
         gobias(s,1:length(go),c) = movmean(go-nogo,10);
         
+        binsz = 10;
+        bins = length(state)/binsz;
+        for i = 1:bins
+            st = state((i*binsz)-binsz+1:i*binsz);
+            ac = action((i*binsz)-binsz+1:i*binsz);
+            R_data_mov(s,i,c) = mutual_information(st,ac,0.01);
+        end
     end
     
     clear R V
@@ -46,7 +53,7 @@ end
 % store data
 results.R_data = R_data;
 results.V_data = V_data;
-
+results.R_data_mov = R_data_mov;
 
 % compute bias
 R = squeeze(nanmean(results.R));

@@ -4,7 +4,7 @@ function [lik,latents] = actor_critic_lik(x,data)
 %
 % USAGE: [lik,latents] = actor_critic_lik(x,data)
 
-if length(x)==2   % no cost model
+if length(x)==2     % no cost model
     agent.m = 1;
     agent.C = [];
     agent.lrate_theta = x(1);
@@ -13,15 +13,15 @@ if length(x)==2   % no cost model
     agent.lrate_beta = 0;
     agent.lrate_p = 0;
     agent.lrate_e = 0.1;
-    agent.b = 1;
+    agent.b = 1; % initial bias
     
-elseif length(x)==4 % 'best' model
+elseif length(x)==3 % 'best' model
     agent.m = 2;
     agent.C = x(1);
     agent.lrate_theta = x(2);
     agent.lrate_V = x(3);
     agent.beta0 = 1;
-    agent.lrate_beta = x(4);
+    agent.lrate_beta = 1;
     agent.lrate_p = 0;
     agent.lrate_e = 0.1;
     agent.b = 1;
@@ -38,11 +38,12 @@ for c = 1:length(C)
     acc = data.acc(ix);                 % correct choice on each trial
     R = data.condQ(c).Q;                % reward function for that block
     setsize = length(unique(state));    % number of distinct states
-    nA = length(unique(action));           % number of distinct actions
+    nA = length(unique(action));        % number of distinct actions
     theta = zeros(2,1);                 % policy parameters (Pavlovian vs. Instrumental)
     V = zeros(setsize,1);               % state values
     Q = zeros(setsize,nA);              % state-action values
     p = ones(1,nA)/nA;                  % marginal action probabilities
+    p = [0.2689 0.7311];
     beta = agent.beta0;
     ecost = 0;
     
@@ -73,8 +74,7 @@ for c = 1:length(C)
         ecost = ecost + agent.lrate_e*(cost-ecost);    % policy cost update
         
         if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*(agent.C-cost);
-            % beta = beta + agent.lrate_beta*(agent.C-cost)*(theta(s,a)-(theta(s,:)*policy'));
+            beta = beta + agent.lrate_beta*2*(agent.C-ecost); % squared deviation is independent of beta (beta not in policy)
             beta = max(min(beta,50),0);
         end
         

@@ -8,19 +8,20 @@ function plot_figures(fig, results, data, mresults)
 
 if nargin < 2; load('gng_results.mat'); end
 if nargin < 3; load('gng_data.mat'); end
-if nargin < 4; model = load('model_fits4.mat'); mresults = model.results; end
+if nargin < 4; model = load('model_fits7.mat'); mresults = model.results; end
 
 if nargin < 1 % plot all figures
     fig = 1;
-    %plot_figures('params');
-    %plot_figures('param-corr');
+    plot_figures('params_winmodel');
+    plot_figures('params_altmodel');
+    plot_figures('params_dorfman');
     plot_figures('reward-complexity');
     plot_figures('bias-complexity');
     plot_figures('gobias');
     plot_figures('bar-gb-pc');
     plot_figures('beta-complexity');
     %plot_figures('param-corr');
-    %plot_figures('params');
+    
 end
 
 rng(1); % set random seed for reproducibile bootstrapped confidence intervals
@@ -30,6 +31,7 @@ legStr = data(1).legStr;
 
 switch fig
     case 'reward-complexity'
+        
         % theoretical curves
         figure; hold on;
         subplot 231; hold on;
@@ -52,7 +54,7 @@ switch fig
         
         % does each condition have diff learned policy complexities?
         figure; hold on;
-        subplot 121; hold on;
+        subplot 131; hold on;
         x = 1:C;
         for c = 1:C
             scatter(c*ones(size(results.R_data,1),1),results.R_data(:,c),150,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
@@ -73,8 +75,18 @@ switch fig
         xlim([0 6])
         hold on;
         
+        % how does empirical policy complexity change over time?
+        subplot 132;  hold on;
+        R_data_movmean = squeeze(nanmean(results.R_data_mov)); % avg over subject
+        R_data_movmean(R_data_movmean==0) = NaN;
+        plot(R_data_movmean,'LineWidth',3)
+        ylabel('Empirical policy complexity');
+        xlabel('Binned trials (bins of 10)');
+        legend(legStr)
+        set(gcf,'Position',[0 300 1200 500])
+        
         % does each condition have diff bias away from curve?
-        subplot 122; hold on;
+        subplot 133; hold on;
         
         for c = 1:C
             scatter(c*ones(size(results.bias,1),1),results.bias(:,c),150,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
@@ -87,8 +99,6 @@ switch fig
         xticklabels(legStr); xtickangle(45)
         ylabel('Deviation from optimality');
         xlim([0 6])
-        set(gcf,'Position',[0 300 1200 500])
-        
         
         
     case 'bias-complexity' % residuals vs complexity | go bias vs complexity
@@ -136,7 +146,7 @@ switch fig
         figure; hold on;
         pc = results.R_data;
         
-         % separate by control and similarity
+        % separate by control and similarity
         ctrlpc = [[pc(:,2);pc(:,4)],[pc(:,3);pc(:,5)]]; % cluster by LC vs HC
         simpc = [[pc(:,4);pc(:,5)],[pc(:,2);pc(:,3)]]; % cluster by HS vs LS
         
@@ -169,7 +179,7 @@ switch fig
         gb = results.gb;         % static
         gobias = results.gobias; % dynamic
         
-         % separate by control and similarity
+        % separate by control and similarity
         ctrlgb = [[gb(:,2);gb(:,4)],[gb(:,3);gb(:,5)]]; % cluster by LC vs HC
         simgb = [[gb(:,4);gb(:,5)],[gb(:,2);gb(:,3)]]; % cluster by LS vs HS
         
@@ -236,10 +246,10 @@ switch fig
         % almost significant difference between low and high similarity (all control) p = 0.07
         % significant difference between low and high similarity for low control
         
-       
+        
         
     case 'gobias'
-     
+        
         gb = results.gb;         % static
         gobias = results.gobias; % dynamic
         err = sem(gb,1);
@@ -248,7 +258,7 @@ switch fig
         %[m,~,ci] = normfit(gb);
         %err = diff(ci)/2;
         
-       
+        
         % go biases
         figure; hold on;
         subplot 311; hold on; % go bias bar
@@ -340,93 +350,186 @@ switch fig
         
         set(gcf,'Position',[300 300 1200 600])
         
-    case 'params' % only for model
-        for m = 1:length(mresults) % for each fitted model
-            figure; hold on;
-            %subplot(size(results(m).x,2),1,1); hold on;
-            %plot(results(m).x','k.','MarkerSize',20)
-            %             for i = 1:size(results(m).x,2)
-            %             scatter(i*ones(size(results(m).x,1),1),results(m).x(:,i),150,'k','filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
-            %             end
-            %             xlim([0 size(results(m).x,2)+1])
-            %             xticks([1:size(results(m).x,2)])
-            %             xticklabels({results(m).param.name})
-            
-            for i = 1:size(mresults(m).x,2)
-                subplot(1,size(mresults(m).x,2),i); hold on;
-                histogram(mresults(m).x(:,i),25,'FaceColor','k')
-                %title(results(m).param(i).label)
-                title(mresults(m).param(i).label);
-                if i ==1;xlabel('Parameter value');end
-            end
-            set(gcf, 'Position',  [0, 0, 1200, 400])
-            
-            [simdata, simresults] = sim_gng(m,data,mresults);
-            
-            pause(1)
-            figure; hold on;
-            movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));
-            movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
-            movtheta = zeros(length(simdata)*2,length(simdata(1).theta(simdata(1).cond==2)));
-            
-            for s = 1:length(simdata)
-                for c = 1:C
-                    movbeta(s,1:length(simdata(s).beta(simdata(s).cond==c)),c) = movmean(simdata(s).beta(simdata(s).cond==c),10);
-                    movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
-                    movtheta(s*2-1:s*2,1:length(simdata(s).theta(simdata(s).cond==c,:)),c) = simdata(s).theta(simdata(s).cond==c,:)';
-                end
-            end
-            movbeta(movbeta==0) = NaN;
-            movcost(movcost==0) = NaN;
-            movtheta(movtheta==0) = NaN;
-            
-            % beta
-            subplot 211; hold on;
+    case 'params_winmodel' % only for winning model
+        m = 2;
+        figure; hold on;
+        for i = 1:size(mresults(m).x,2)
+            subplot(1,size(mresults(m).x,2),i); hold on;
+            histogram(mresults(m).x(:,i),25,'FaceColor','k')
+            %title(results(m).param(i).label)
+            title(mresults(m).param(i).label);
+            if i ==1;xlabel('Parameter value');end
+        end
+        set(gcf, 'Position',  [0, 0, 1200, 400])
+        
+        [simdata, simresults] = sim_gng(m,data,mresults);
+        
+        pause(1)
+        figure; hold on;
+        movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));
+        movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
+        movtheta = zeros(length(simdata)*2,length(simdata(1).theta(simdata(1).cond==2)));
+        
+        for s = 1:length(simdata)
             for c = 1:C
-                l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
+                movbeta(s,1:length(simdata(s).beta(simdata(s).cond==c)),c) = movmean(simdata(s).beta(simdata(s).cond==c),10);
+                movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
+                movtheta(s*2-1:s*2,1:length(simdata(s).theta(simdata(s).cond==c,:)),c) = simdata(s).theta(simdata(s).cond==c,:)';
             end
-            ylabel('\beta');
-            xlabel('Trials');
-            
-            % policy cost
-            subplot 212; hold on;
+        end
+        movbeta(movbeta==0) = NaN;
+        movcost(movcost==0) = NaN;
+        movtheta(movtheta==0) = NaN;
+        
+        % beta
+        subplot 211; hold on;
+        for c = 1:C
+            l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('\beta');
+        xlabel('Trials');
+        
+        % policy cost
+        subplot 212; hold on;
+        for c = 1:C
+            l(c,:) = shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('Policy complexity');
+        xlabel('Trials');
+        set(gcf, 'Position',  [400, 100, 400, 600])
+        
+        % theta
+        figure; hold on;
+        for c = 1:C
+            subplot(1,C,c); hold on;
+            title(legStr{c})
+            for th = 1:2
+                t(th) = shadedErrorBar(1:size(movtheta,2),mean(movtheta(th:2:size(movtheta,1),:,c)),sem(movtheta(th:2:size(movtheta,1),:,c),1),{'Color',map(th,:)},1);
+                handles(th) = t(th).mainLine;
+            end
+            dtheta = movtheta(1:2:size(movtheta,1),:,c)-movtheta(2:2:size(movtheta,1),:,c);
+            %t(3) = shadedErrorBar(1:size(dtheta,2),mean(dtheta),sem(dtheta,1),{'Color',[0 0 0]},1);
+            %handles(3) = t(3).mainLine;
+        end
+        subplot(1,C,1)
+        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'})
+        ylabel('\theta');
+        xlabel('Trials');
+        equalabscissa(1,C)
+        set(gcf, 'Position',  [0, 200, 1400, 300])
+        
+        
+        plot_figures('reward-complexity',simresults,simdata);
+        plot_figures('bias-complexity',simresults,simdata);
+        plot_figures('gobias',simresults,simdata);
+        plot_figures('bar-gb-pc',simresults,simdata);
+        plot_figures('beta-complexity',simresults,simdata);
+        
+    case 'params_altmodel' % simulation for alternative model
+        m = 1;
+        figure; hold on;
+        
+        for i = 1:size(mresults(m).x,2)
+            subplot(1,size(mresults(m).x,2),i); hold on;
+            histogram(mresults(m).x(:,i),25,'FaceColor','k')
+            %title(results(m).param(i).label)
+            title(mresults(m).param(i).label);
+            if i ==1;xlabel('Parameter value');end
+        end
+        set(gcf, 'Position',  [0, 0, 1200, 400])
+        
+        [simdata, simresults] = sim_gng(m,data,mresults);
+        
+        pause(1)
+        figure; hold on;
+        movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));
+        movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
+        movtheta = zeros(length(simdata)*2,length(simdata(1).theta(simdata(1).cond==2)));
+        
+        for s = 1:length(simdata)
             for c = 1:C
-                l(c,:) = shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+                movbeta(s,1:length(simdata(s).beta(simdata(s).cond==c)),c) = movmean(simdata(s).beta(simdata(s).cond==c),10);
+                movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
+                movtheta(s*2-1:s*2,1:length(simdata(s).theta(simdata(s).cond==c,:)),c) = simdata(s).theta(simdata(s).cond==c,:)';
             end
-            ylabel('Policy complexity');
-            xlabel('Trials');
-            set(gcf, 'Position',  [400, 100, 400, 600])
-            
-            % theta
-            figure; hold on;
-            for c = 1:C
-                subplot(1,C,c); hold on;
-                title(legStr{c})
-                for th = 1:2
-                    t(th) = shadedErrorBar(1:size(movtheta,2),mean(movtheta(th:2:size(movtheta,1),:,c)),sem(movtheta(th:2:size(movtheta,1),:,c),1),{'Color',map(th,:)},1);
-                    handles(th) = t(th).mainLine;
-                end
-                dtheta = movtheta(1:2:size(movtheta,1),:,c)-movtheta(2:2:size(movtheta,1),:,c);
-                %t(3) = shadedErrorBar(1:size(dtheta,2),mean(dtheta),sem(dtheta,1),{'Color',[0 0 0]},1);
-                %handles(3) = t(3).mainLine;
+        end
+        movbeta(movbeta==0) = NaN;
+        movcost(movcost==0) = NaN;
+        movtheta(movtheta==0) = NaN;
+        
+        % beta
+        subplot 211; hold on;
+        for c = 1:C
+            l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('\beta');
+        xlabel('Trials');
+        
+        % policy cost
+        subplot 212; hold on;
+        for c = 1:C
+            l(c,:) = shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('Policy complexity');
+        xlabel('Trials');
+        set(gcf, 'Position',  [400, 100, 400, 600])
+        
+        % theta
+        figure; hold on;
+        for c = 1:C
+            subplot(1,C,c); hold on;
+            title(legStr{c})
+            for th = 1:2
+                t(th) = shadedErrorBar(1:size(movtheta,2),mean(movtheta(th:2:size(movtheta,1),:,c)),sem(movtheta(th:2:size(movtheta,1),:,c),1),{'Color',map(th,:)},1);
+                handles(th) = t(th).mainLine;
             end
-            subplot(1,C,1)
-            legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'})
-            ylabel('\theta');
-            xlabel('Trials');
-            equalabscissa(1,C)
-            set(gcf, 'Position',  [0, 200, 1400, 300])
+            dtheta = movtheta(1:2:size(movtheta,1),:,c)-movtheta(2:2:size(movtheta,1),:,c);
+            %t(3) = shadedErrorBar(1:size(dtheta,2),mean(dtheta),sem(dtheta,1),{'Color',[0 0 0]},1);
+            %handles(3) = t(3).mainLine;
+        end
+        subplot(1,C,1)
+        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'})
+        ylabel('\theta');
+        xlabel('Trials');
+        equalabscissa(1,C)
+        set(gcf, 'Position',  [0, 200, 1400, 300])
+        
+        
+        plot_figures('reward-complexity',simresults,simdata);
+        plot_figures('bias-complexity',simresults,simdata);
+        plot_figures('gobias',simresults,simdata);
+        plot_figures('bar-gb-pc',simresults,simdata);
+        plot_figures('beta-complexity',simresults,simdata);
+        
+        
+    case 'params_dorfman'
+             %rng(3);
+            data = load_data('data1.csv');
+            load results1;
+            param = median(mresults(3).x);
+            data = data(randperm(length(data)));
+            simdata(1) = sim_adaptive(param,data(1).s,[0.25 0.75; 0.75 0.25; 0.5 0.5]);
+            simdata(2) = sim_adaptive(param,data(2).s,[0.25 0.75; 0.75 0.25; 0.2 0.8]);
             
+            w = [simdata(1).w simdata(2).w];
             
-            plot_figures('reward-complexity',simresults,simdata);
-            plot_figures('bias-complexity',simresults,simdata);
-            plot_figures('gobias',simresults,simdata);
-            plot_figures('bar-gb-pc',simresults,simdata);
-            plot_figures('beta-complexity',simresults,simdata);
-            pause
-        end % for each fitted model
+            subplot(1,2,1);
+            plot(w,'LineWidth',4);
+            legend({'Low control' 'High control'},'FontSize',25,'Location','Best');
+            set(gca,'XLim',[0 121],'FontSize',25,'YLim',[-0.1 1.1]);
+            ylabel('Adaptive weight','FontSize',25);
+            xlabel('Trial','FontSize',25);
+            
+            subplot(1,2,2);
+            go_bias(1) = mean(simdata(1).acc(simdata(1).s==1)) - mean(simdata(1).acc(simdata(1).s==2));
+            go_bias(2) = mean(simdata(2).acc(simdata(2).s==1)) - mean(simdata(2).acc(simdata(2).s==2));
+            bar(go_bias);
+            set(gca,'XTickLabel',{'Low control' 'High control'},'FontSize',25,'XLim',[0.5 2.5],'YLim',[0 0.4]);
+            ylabel('Go bias','FontSize',25);
+            set(gcf,'Position',[200 200 900 400])
+            
+        
 end
-
 end
 
 function [se, m] = wse(X,dim)

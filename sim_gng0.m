@@ -10,13 +10,13 @@ rng(1); % set random seed for reproducibility
 prettyplot
 
 legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
-data = generate_task(93,legStr); % number of simulated subjects
+data = generate_task(29,legStr); % number of simulated subjects
 
 % legStr = {'Low control','High control'};
 % data = generate_dorfman(100); % number of simulated subjects
 
 if m == 3
-    load model_fits4.mat
+    load model_fits6.mat
 end
 
 for s = 1:length(data)
@@ -37,7 +37,7 @@ for s = 1:length(data)
             agent.lrate_beta = 1;
             agent.beta0 = 1;
             
-        case 3 % using the mean of the fitted models
+        case 3 % using the fitted models
             x = results(2).x(s,:);
             agent.C = x(1);
             agent.lrate_theta = x(2);

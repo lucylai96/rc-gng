@@ -51,8 +51,7 @@ for c = 1:length(C)
         ecost = ecost + agent.lrate_e*(cost-ecost);    % policy cost update
         
         if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*(agent.C-cost);
-            %beta = beta + agent.lrate_beta*(agent.C-cost)*((theta'*phi)-(theta(s,:)*policy'));
+            beta = beta + agent.lrate_beta*2*(agent.C-ecost);
             beta = max(min(beta,50),0);
         end
         if agent.lrate_p > 0

@@ -7,11 +7,11 @@ function [simdata, simresults] = sim_gng(model,data,results)
 prettyplot
 
 if nargin < 2; load gng_data.mat; end
-if nargin < 3; load model_fits4.mat; end
+if nargin < 3; load model_fits6.mat; end
 
 results = results(model);
 
-for s = 1:length(data)
+for s = 1:125%length(data)
     agent.m = model;
     
     if agent.m == 1 % no cost
