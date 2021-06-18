@@ -6,27 +6,27 @@ function [simdata, simresults] = sim_gng0(m)
 % Written by: Lucy Lai
 
 addpath('/Users/lucy/Google Drive/Harvard/Projects/rc-behav/code/GoNogo-control/')
-rng(1); % set random seed for reproducibility
+rng(0); % set random seed for reproducibility
 prettyplot
 
 legStr = {'Control, S = 2','HiSim, LC, S = 4','HiSim, HC, S = 4', 'LowSim, LC, S = 4','LowSim, HC, S = 4'};
-data = generate_task(29,legStr); % number of simulated subjects
+data = generate_task(131,legStr); % number of simulated subjects
 
 % legStr = {'Low control','High control'};
 % data = generate_dorfman(100); % number of simulated subjects
 
 if m == 3
-    load model_fits6.mat
+    load model_fits10.mat
 end
 
 for s = 1:length(data)
     agent.lrate_theta = 0.3;
     agent.lrate_V = 0.3;
     agent.lrate_p = 0;
-    agent.lrate_e = 0.1;
+    agent.lrate_e = 0.01;
     agent.C = 1;
     agent.m = m;
-    agent.b = 1;
+    agent.b = 0.5;
     switch agent.m
         case 1 % no cost
             agent.lrate_beta = 0;
@@ -39,13 +39,13 @@ for s = 1:length(data)
             
         case 3 % using the fitted models
             x = results(2).x(s,:);
-            agent.C = x(1);
+            agent.C = x(1)+rand;
             agent.lrate_theta = x(2);
             agent.lrate_V = x(3);
-            agent.lrate_beta = 1;%x(4);
+            agent.lrate_beta = 1;
             agent.beta0 = 1;
+            agent.b = 0.5;
     end
-    
     simdata(s) = actor_critic_gng(agent,data(s));
 end
 
@@ -58,6 +58,20 @@ plot_figures('gobias',simresults,simdata);
 plot_figures('bar-gb-pc',simresults,simdata);
 plot_figures('beta-complexity',simresults,simdata);
 pause(1);
+
+figure;hold on;
+plot(simdata(1).costdev)
+plot(simdata(3).costdev)
+plot(simdata(4).costdev)
+plot(simdata(5).costdev)
+plot(simdata(6).costdev)
+
+[results(2).x(1,1);
+results(2).x(2,1);
+results(2).x(3,1);
+results(2).x(4,1);
+results(2).x(5,1)]
+
 
 C = 5; map = gngColors(5);
 figure; hold on;

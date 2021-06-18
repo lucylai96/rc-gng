@@ -3,7 +3,7 @@ function bonus_subjects
 clear all
 
 %'A2NHFSO7GMM8QR','A1K8VUKRL53OX'
-subj = A3BUWQ5C39GRQC;
+subj = {'A3BUWQ5C39GRQC'};
 
 for s = 1:length(subj)
     % 1:rt   2:url   3:trial_type   4:trial_index   5:time_elapsed

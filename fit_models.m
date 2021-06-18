@@ -1,4 +1,4 @@
-function [results,bms_results] = fit_models(data,models,results)
+function [results,bms_results] = fit_models(data,models)
 
 % Fit models to rc-gng data.
 
@@ -14,7 +14,7 @@ if nargin < 2
 end
 
 for m = models
-    a = 2; b = 2; % for beta prior
+    a = 10; b = 1; % for beta prior
     
     switch m
         case 1 % 4 free params: lrate_theta, lrate_V, lrate_p
@@ -31,13 +31,13 @@ for m = models
             %param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_V');
             %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_{\beta}');
             
-            param(1) = struct('name','C','lb',0.01,'ub',log(20),'logpdf',@(x) 0,'label','C');
+            param(1) = struct('name','C','lb',0,'ub',log(20),'logpdf',@(x) sum(log(normpdf(x,2,0.25))),'label','C');
             param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\theta}');
             param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_V');
             %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\beta}');
+            %param(4) = struct('name','b','lb',0,'ub',1,'logpdf',@(x)  sum(log(unifpdf(x,0,1))),'label','b'); % b is initial bias to start at Go
             
             %param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) 0);
-            %param(6) = struct('name','b','lb',0,'ub',1,'logpdf',@(x) 0); % b is initial bias to start at Go
             % TODO: also try model where b is fixed to 0.3
         case 3
             likfun = @dorfman_adaptive_lik;
@@ -56,8 +56,8 @@ for m = models
     results(m) = mfit_optimize(likfun,param,data);
     clear param
 end
+use_bic = 1;
+bms_results = mfit_bms(results,use_bic);
 
-bms_results = mfit_bms(results);
-
-save(strcat('model_fits7.mat'),'results','bms_results')
+save(strcat('model_fits10.mat'),'results','bms_results')
 

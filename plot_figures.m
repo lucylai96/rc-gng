@@ -8,7 +8,7 @@ function plot_figures(fig, results, data, mresults)
 
 if nargin < 2; load('gng_results.mat'); end
 if nargin < 3; load('gng_data.mat'); end
-if nargin < 4; model = load('model_fits7.mat'); mresults = model.results; end
+if nargin < 4; model = load('model_fits10.mat'); mresults = model.results; end
 
 if nargin < 1 % plot all figures
     fig = 1;
@@ -20,6 +20,7 @@ if nargin < 1 % plot all figures
     plot_figures('gobias');
     plot_figures('bar-gb-pc');
     plot_figures('beta-complexity');
+    plot_figures('bic')
     %plot_figures('param-corr');
     
 end
@@ -36,7 +37,7 @@ switch fig
         figure; hold on;
         subplot 231; hold on;
         plot(squeeze(nanmean(results.R)),squeeze(nanmean(results.V)),'LineWidth',3)
-        legend(legStr)
+        legend(legStr,'Location','Best');
         xlabel('Policy complexity')
         ylabel('Average reward')
         title('Optimal trade-off curves')
@@ -82,7 +83,7 @@ switch fig
         plot(R_data_movmean,'LineWidth',3)
         ylabel('Empirical policy complexity');
         xlabel('Binned trials (bins of 10)');
-        legend(legStr)
+        legend(legStr,'Location','Best');
         set(gcf,'Position',[0 300 1200 500])
         
         % does each condition have diff bias away from curve?
@@ -125,7 +126,6 @@ switch fig
         
         xlabel('Policy complexity');
         ylabel('Deviation from optimality');
-        %legend(H,legStr)
         
         % go bias vs complexity
         x = results.R_data;
@@ -290,7 +290,7 @@ switch fig
         for c = 1:C
             handles(c) = l(c).mainLine;
         end
-        legend(handles,legStr)
+        legend(handles,legStr,'Location','Best');
         ylabel('Go bias');
         xlabel('Trials');
         axis tight
@@ -313,12 +313,10 @@ switch fig
             plot(R(ix,c),beta(ix),'.','LineWidth',4,'Color',map(c,:),'MarkerSize',50);
             b(c) = beta(ix);
         end
-        %             lgd = legend(h,{'2' '3' '4' '5' '6'},'FontSize',25,'Location','NorthWest');
-        %             title(lgd,'Set size','FontSize',25);
-        %             set(gca,'FontSize',25);
+        
         xlabel('Policy complexity');
         ylabel('\beta');
-        legend(h,legStr)
+        legend(h,legStr,'Location','Best');
         disp(['beta: ',num2str(b)]);
         
     case 'param-corr'  % how do parameters explain go bias and complexity?\
@@ -412,7 +410,7 @@ switch fig
             %handles(3) = t(3).mainLine;
         end
         subplot(1,C,1)
-        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'})
+        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'},'Location','Best');
         ylabel('\theta');
         xlabel('Trials');
         equalabscissa(1,C)
@@ -421,7 +419,7 @@ switch fig
         
         plot_figures('reward-complexity',simresults,simdata);
         plot_figures('bias-complexity',simresults,simdata);
-        plot_figures('gobias',simresults,simdata);
+        plot_figures('gobias',simresults,simdata); pause(1);
         plot_figures('bar-gb-pc',simresults,simdata);
         plot_figures('beta-complexity',simresults,simdata);
         
@@ -488,7 +486,7 @@ switch fig
             %handles(3) = t(3).mainLine;
         end
         subplot(1,C,1)
-        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'})
+        legend(handles,{'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'},'Location','Best');
         ylabel('\theta');
         xlabel('Trials');
         equalabscissa(1,C)
@@ -503,32 +501,70 @@ switch fig
         
         
     case 'params_dorfman'
-             %rng(3);
-            data = load_data('data1.csv');
-            load results1;
-            param = median(mresults(3).x);
-            data = data(randperm(length(data)));
-            simdata(1) = sim_adaptive(param,data(1).s,[0.25 0.75; 0.75 0.25; 0.5 0.5]);
-            simdata(2) = sim_adaptive(param,data(2).s,[0.25 0.75; 0.75 0.25; 0.2 0.8]);
-            
-            w = [simdata(1).w simdata(2).w];
-            
-            subplot(1,2,1);
-            plot(w,'LineWidth',4);
-            legend({'Low control' 'High control'},'FontSize',25,'Location','Best');
-            set(gca,'XLim',[0 121],'FontSize',25,'YLim',[-0.1 1.1]);
-            ylabel('Adaptive weight','FontSize',25);
-            xlabel('Trial','FontSize',25);
-            
-            subplot(1,2,2);
-            go_bias(1) = mean(simdata(1).acc(simdata(1).s==1)) - mean(simdata(1).acc(simdata(1).s==2));
-            go_bias(2) = mean(simdata(2).acc(simdata(2).s==1)) - mean(simdata(2).acc(simdata(2).s==2));
-            bar(go_bias);
-            set(gca,'XTickLabel',{'Low control' 'High control'},'FontSize',25,'XLim',[0.5 2.5],'YLim',[0 0.4]);
-            ylabel('Go bias','FontSize',25);
-            set(gcf,'Position',[200 200 900 400])
-            
+        %rng(3);
         
+        for s = 1:length(data)
+            
+            param = mresults(3).x(s,:); % fitted parameters to hayley's model
+            simdata(s) = sim_adaptive(param,data(s)); % condition
+        end
+        
+        % add a calculation of go bias and policy complexity (from our
+        % analysis)
+        simresults = analyze_gng(simdata);
+        
+        
+        movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
+        w = zeros(length(simdata),length(simdata(1).w(simdata(1).cond==2))); % subjects x trials x condition
+        for s = 1:length(simdata)
+            for c = 1:C
+                w(s,1:length(simdata(s).w(simdata(s).cond==c)),c) = movmean(simdata(s).w(simdata(s).cond==c),10);
+                movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
+                
+            end
+        end
+        w(w==0) = NaN;
+        movcost(movcost==0) = NaN;
+        
+        
+        % w - adaptive weight
+        figure; hold on;
+        subplot 121; hold on;
+        
+        for c = 1:C
+            t = shadedErrorBar(1:size(w,2),mean(w(:,:,c)),sem(w(:,:,c),1),{'Color',map(c,:)},1);
+            handles(c) = t.mainLine;
+        end
+        
+        legend(handles,legStr,'Location','Best');
+        ylabel('Adaptive weight')
+        xlabel('Trials');
+        
+        % policy cost
+        subplot 122; hold on;
+        for c = 1:C
+            shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('Policy complexity');
+        xlabel('Trials');
+        set(gcf, 'Position',  [400, 100, 600, 400])
+        
+        
+        plot_figures('reward-complexity',simresults,simdata);
+        plot_figures('bias-complexity',simresults,simdata);
+        plot_figures('gobias',simresults,simdata);
+        plot_figures('bar-gb-pc',simresults,simdata);
+        plot_figures('beta-complexity',simresults,simdata);
+        
+        
+    case 'bic'
+        figure; hold on;
+        for i = 1:length(mresults)
+            histogram(mresults(i).bic,50)
+        end
+        xlabel('BIC')
+        ylabel('count')
+        legend('No cost model','Cost model','Dorfman & Gershman 2019', 'Location','Best')
 end
 end
 

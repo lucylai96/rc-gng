@@ -31,7 +31,7 @@ for c = 1:length(C)
         logpolicy = d - logsumexp(d);
         policy = exp(logpolicy);    % softmax policy
         a = fastrandsample(policy); % action
-        acc = a == corchoice(t);    % accuracy
+        acc = a == corchoice(t);   % accuracy
         r = fastrandsample(R(s,a)); % reward
         
         if t == 1
@@ -68,7 +68,6 @@ for c = 1:length(C)
         simdata.beta(ix(t)) = beta;
         simdata.cost(ix(t)) = cost;
         simdata.theta(ix(t),:) = theta;
-        simdata.V(ix(t),:) = V;
         simdata.costdev(ix(t),:) = costdev;
     end
     simdata.p(c,:) = p;

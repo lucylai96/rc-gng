@@ -12,8 +12,8 @@ if length(x)==2     % no cost model
     agent.beta0 = 1;
     agent.lrate_beta = 0;
     agent.lrate_p = 0;
-    agent.lrate_e = 0.1;
-    agent.b = 1; % initial bias
+    agent.lrate_e = 0.01;
+    agent.b = 0.5; % initial bias
     
 elseif length(x)==3 % 'best' model
     agent.m = 2;
@@ -23,8 +23,8 @@ elseif length(x)==3 % 'best' model
     agent.beta0 = 1;
     agent.lrate_beta = 1;
     agent.lrate_p = 0;
-    agent.lrate_e = 0.1;
-    agent.b = 1;
+    agent.lrate_e = 0.01;
+    agent.b = 0.5;
 end
 
 C = unique(data(1).cond);
@@ -43,7 +43,6 @@ for c = 1:length(C)
     V = zeros(setsize,1);               % state values
     Q = zeros(setsize,nA);              % state-action values
     p = ones(1,nA)/nA;                  % marginal action probabilities
-    p = [0.2689 0.7311];
     beta = agent.beta0;
     ecost = 0;
     
@@ -60,6 +59,9 @@ for c = 1:length(C)
         logpolicy = d - logsumexp(d);
         policy = exp(logpolicy);               % softmax policy
         lik = lik + logpolicy(a);
+        if t == 1
+            p = policy;
+        end
         cost = logpolicy(a) - log(p(a));       % policy complexity cost
         
         if agent.m > 1                         % if it's a cost model
@@ -74,8 +76,9 @@ for c = 1:length(C)
         ecost = ecost + agent.lrate_e*(cost-ecost);    % policy cost update
         
         if agent.lrate_beta > 0
-            beta = beta + agent.lrate_beta*2*(agent.C-ecost); % squared deviation is independent of beta (beta not in policy)
+            beta = beta + agent.lrate_beta*(agent.C-ecost); % squared deviation is independent of beta (beta not in policy)
             beta = max(min(beta,50),0);
+            costdev = agent.C-ecost;
         end
         
         if agent.lrate_p > 0
@@ -86,6 +89,7 @@ for c = 1:length(C)
         
         if nargout > 1                                          % if you want to collect the latents
             latents.rpe(ii(t)) = rpe;
+            latents.costdev(ii(t)) = costdev;
         end
         
     end % trials in block end

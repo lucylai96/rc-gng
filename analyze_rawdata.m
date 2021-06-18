@@ -66,12 +66,12 @@ subj6 = {'A2YC6PEMIRSOAA','A2CUAZD7OJDFYR','A3CH1Z6J9R38G9','A3BU8UL4W258UU',...
     'A320QA9HJFUOZO', 'A1F9KLZGHE9DTA','A2S64AUN7JI7ZS','A2NA6X1SON3KFH',...
     'A3B7TNVOISSZ2O','AVXEDARJC5HLU','A114JRUBJ5IN7D','A3QLGMZOLGMBQ1',...
     'A1KS9LITOVPAT8','A33X52IN60MSOE','A2EGOCAO0VL2S8','A2WQT33K6LD9Z5',...
-    'A1PBFDQR599N3K','AW5O1RK3W60FC','ACAJFF4MF5S5X'};
+    'A1PBFDQR599N3K','AW5O1RK3W60FC','ACAJFF4MF5S5X','A3BUWQ5C39GRQC'};
 
 % all subjects
 subj = [subj1 subj3 subj4 subj5 subj6];
 
-cutoff = 0.50; % percentage accuracy cutoff
+cutoff = 0.51; % percentage accuracy cutoff
 
 flag = zeros(1,length(subj));
 pressflag = zeros(1,length(subj)); blockflag = zeros(1,length(subj)); cutflag = zeros(1,length(subj));
@@ -95,6 +95,7 @@ for s = 1:length(subj)
     correct = double(strcmp(A(trial_idx,12),'1')); %plot(correct,'o')
     if (sum(actions==2) / length(actions))>0.8 || (sum(actions==1) / length(actions))>0.8
         flag(s) = 1; pressflag(s) = 1;
+        pa(s,:) = [sum(actions==2) / length(actions) sum(actions==1) / length(actions)];
         %figure; hold on; plot(actions,'o')
     end
     
@@ -114,13 +115,13 @@ disp(['Excluded because always or never pressing: ',num2str(sum(pressflag))])
 disp(['Excluded because <30% accuracy in any condition: ',num2str(sum(blockflag))])
 
 % % subjects who were <30% on any one condition and always pressing were also <50% overall 
-sum(find(cutflag==1 & pressflag==1 & blockflag==1))
+find(cutflag==1 & pressflag==1 & blockflag==1)
 
 % 3 subjects who were <30% on any one condition were also <50% overall 
-sum(find(cutflag==1 & blockflag==1))
+find(cutflag==1 & blockflag==1)
 
 % 4 subjects who were always or never pressing and were also <50% overall 
-sum(find(cutflag==1 & pressflag==1))
+find(cutflag==1 & pressflag==1)
 
 figure; hold on;
 histogram(pcorr,25);
