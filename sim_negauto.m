@@ -46,10 +46,17 @@ simdata(1).legStr = legStr;
 % plots
 map = brewermap(n,'*Reds');
 %map = map(11:end,:);
-  
+
 % cumulative presses,
 figure; hold on;
-subplot 121; hold on;
+
+subplot 131; hold on;
+imagesc(sort([agent.C])); colormap(map)
+ct = colorbar; axis square; xlabel('Agents')
+title(ct,'Capacity')
+set(gca,'ytick',[])
+
+subplot 132; hold on;
 for s = 1:length(data)
     simdata(s).cs = cumsum(simdata(s).a==2); % a = 2 is peck
     plot(simdata(s).cs,'Color',map(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',2);
@@ -62,7 +69,7 @@ ylabel('Cumulative presses');
 xlabel('Trials');
 
 % capacity
-subplot 122; hold on;
+subplot 133; hold on;
 for s = 1:length(data)
     plot(sum(simdata(s).a==2),agent(s).C,'o','Color',map(ceil(n*agent(s).C/max([agent.C])),:))
 end
@@ -71,8 +78,9 @@ ylabel('Capacity');
 xlabel('Total Pecks');
 box off
 axis square
+set(gcf, 'Position',  [400, 100, 1200, 500])
 
-
+%%
 C =1;
 figure; hold on;
 movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));
@@ -91,7 +99,7 @@ movcost(movcost==0) = NaN;
 %movtheta(movtheta==0) = NaN;
 
 % beta
-subplot 211; hold on;
+subplot 111; hold on;
 for c = 1:C
     l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
 end
@@ -109,24 +117,23 @@ set(gcf, 'Position',  [400, 100, 400, 600])
 
 % theta
 figure; hold on;
-subplot 211; hold on;
-for s = 1:length(simdata)
-    title(legStr{c})
-    for th = 1:2
-        plot(1:size(movtheta,2),movtheta(s*th,:),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
+str = {'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'}
+for th = 1:2
+    mt = movtheta(th:2:end,:);
+    subplot(1,2,th); hold on;  title(str{th})
+    for s = 1:length(simdata)
+        plot(1:size(mt,2),mt(s,:),'Color',map(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',3)
     end
 end
 ylabel('\theta');
 xlabel('Trials');
+set(gcf, 'Position',  [400, 100, 1000, 300])
 
 % value of state
 figure; hold on;
 subplot 211; hold on;
 for s = 1:length(simdata)
-    title(legStr{c})
-    for th = 1:2
-        plot(1:size(movtheta,2),movtheta(s*th,:),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
-    end
+    plot(simdata(s).V(:,2),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
 end
 ylabel('\theta');
 xlabel('Trials');

@@ -46,7 +46,7 @@ simdata(1).legStr = legStr;
 % plots
 map = brewermap(n,'*Reds');
 %map = map(11:end,:);
-  
+
 % cumulative presses,
 figure; hold on;
 subplot 121; hold on;
@@ -109,16 +109,18 @@ set(gcf, 'Position',  [400, 100, 400, 600])
 
 % theta
 figure; hold on;
-subplot 211; hold on;
-for s = 1:length(simdata)
-    title(legStr{c})
-    for th = 1:2
-        plot(1:size(movtheta,2),movtheta(s*th,:),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
+str = {'\theta_1 (Instrumental)','\theta_2 (Pavlovian)'}
+for th = 1:2
+    mt = movtheta(th:2:end,:);
+    subplot(1,2,th); hold on;  title(str{th})
+    for s = 1:length(simdata)
+        plot(1:size(mt,2),mt(s,:),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
     end
 end
 ylabel('\theta');
 xlabel('Trials');
 
+figure; hold on; imagesc([agent.C])
 % value of state
 figure; hold on;
 subplot 211; hold on;
