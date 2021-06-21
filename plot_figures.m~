@@ -350,10 +350,23 @@ switch fig
         
     case 'capacity'
         %correlation between agent's C parameter and policy complexity in each conditions
-        figure; hold on;
+          figure; hold on;
+                 for c = 1:C
+                       R = squeeze(mean(results.R));
+           plot(mresults(2).x(:,1),R(:,c),'.','LineWidth',4,'Color',map(c,:),'MarkerSize',50);
+           
+           ]
+           R = squeeze(mean(results.R));
+        m = mean(results.R_data);
+        
         for c = 1:C
-            R = squeeze(mean(results.R));
-            plot(mresults(2).x(:,1),R(:,c),'.','Color',map(c,:),'MarkerSize',50);
+            h(c) = plot(R(:,c),beta','-','LineWidth',4,'Color',map(c,:));
+        for i = 1:size(mresults(2).x,2)
+            subplot(1,size(mresults(m).x,2),i); hold on;
+            histogram(mresults(m).x(:,i),25,'FaceColor','k')
+            %title(results(m).param(i).label)
+            title(mresults(m).param(i).label);
+            if i ==1;xlabel('Parameter value');end
         end
         
     case 'params_winmodel' % only for winning model
@@ -371,7 +384,7 @@ switch fig
         [simdata, simresults] = sim_gng(m,data,mresults);
         
         
-        
+       
         pause(1)
         figure; hold on;
         movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));

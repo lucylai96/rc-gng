@@ -14,7 +14,7 @@ if nargin < 2
 end
 
 for m = models
-    a = 10; b = 1; % for beta prior
+    a = 2; b = 2; % for beta prior
     
     switch m
         case 1 % 4 free params: lrate_theta, lrate_V, lrate_p
@@ -31,13 +31,13 @@ for m = models
             %param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_V');
             %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_{\beta}');
             
-            param(1) = struct('name','C','lb',0.5,'ub',log(20),'logpdf',@(x) sum(log(normpdf(x,2,0.25))),'label','C');
-            param(2) = struct('name','lrate_theta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\theta}');
-            param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_V');
-            %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\beta}');
-            %param(4) = struct('name','b','lb',0,'ub',1,'logpdf',@(x)  sum(log(unifpdf(x,0,1))),'label','b'); % b is initial bias to start at Go
+            param(1) = struct('name','C','lb',0,'ub',log(3),'logpdf',@(x) sum(log(unifpdf(x,0,log(3)))),'label','C');
+            param(2) = struct('name','lrate_theta','lb',0.5,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\theta}');
+            param(3) = struct('name','lrate_V','lb',0.5,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_V');
+            %param(4) = struct('name','lrate_beta','lb',0.5,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{\beta}');
+            %param(5) = struct('name','b','lb',0,'ub',1,'logpdf',@(x)  sum(log(unifpdf(x,0,1))),'label','b'); % b is initial bias to start at Go
             
-            %param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) 0);
+            param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{p}');
             % TODO: also try model where b is fixed to 0.3
         case 3
             likfun = @dorfman_adaptive_lik;

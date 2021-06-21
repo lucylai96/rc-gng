@@ -15,14 +15,14 @@ if length(x)==2     % no cost model
     agent.lrate_e = 0.01;
     agent.b = 0.5; % initial bias
     
-elseif length(x)==3 % 'best' model
+elseif length(x)==4 % 'best' model
     agent.m = 2;
     agent.C = x(1);
     agent.lrate_theta = x(2);
     agent.lrate_V = x(3);
     agent.beta0 = 1;
     agent.lrate_beta = 1;
-    agent.lrate_p = 0;
+    agent.lrate_p = x(4);
     agent.lrate_e = 0.01;
     agent.b = 0.5;
 end
@@ -85,7 +85,7 @@ for c = 1:length(C)
             p = p + agent.lrate_p*(policy - p); p = p./sum(p);  % marginal update
         end
         
-        theta = theta + agent.lrate_theta*g;                  % policy parameter update
+        theta = theta + agent.lrate_theta*g;                    % policy parameter update
         
         if nargout > 1                                          % if you want to collect the latents
             latents.rpe(ii(t)) = rpe;
