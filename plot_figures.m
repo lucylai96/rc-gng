@@ -12,18 +12,13 @@ if nargin < 4; model = load('model_fits10.mat'); mresults = model.results; end
 
 if nargin < 1 % plot all figures
     fig = 1;
-    plot_figures('params_winmodel');
-    plot_figures('params_altmodel');
-    plot_figures('params_dorfman');
-    plot_figures('reward-complexity');
-    plot_figures('bias-complexity');
-    plot_figures('gobias');
-    plot_figures('bar-gb-pc');
-    plot_figures('beta-complexity');
-    plot_figures('bic')
-    %plot_figures('param-corr');
-    
+    plot_figures('all')
 end
+
+% plot_figures('params_winmodel');
+% plot_figures('params_altmodel');
+% plot_figures('params_dorfman_adapt');
+% plot_figures('params_dorfman_fix');
 
 rng(1); % set random seed for reproducibile bootstrapped confidence intervals
 C = length(unique(data(1).cond));
@@ -31,6 +26,37 @@ map = gngColors(C);
 legStr = data(1).legStr;
 
 switch fig
+    case 'all'
+        plot_figures('reward-complexity', results, data);
+        plot_figures('bias-complexity', results, data);
+        plot_figures('gobias', results, data); pause(1)
+        plot_figures('bar-gb-pc', results, data); pause(1)
+        plot_figures('beta-complexity', results, data);
+        plot_figures('capacity', results, data)
+        plot_figures('rt', results, data)
+        plot_figures('bic', results, data)
+    case 'rt'
+        figure; hold on;
+          subplot 121; hold on;
+        for c = 1:C
+            scatter(c*ones(size(results.rt.mean,1),1),results.rt.mean(:,c),150,map(c,:),'filled','MarkerEdgeColor',[1 1 1],'LineWidth',1.5,'MarkerFaceAlpha',0.8','jitter','on','jitterAmount',0.15); hold on;
+        end
+        hold on;
+        x = 1:C;
+        [mu,~,ci] = normfit(results.rt.mean);
+        err = diff(ci)/2;
+        hBar = errorbar(x,mu,err,'Color','k','LineWidth',2,'CapSize',0);
+        ylabel('Reaction time (ms)');
+        xticks([1:C])
+        xticklabels(legStr); xtickangle(45)
+        xlim([0 6])
+        
+        subplot 122; hold on;
+        plot(results.R_data,results.rt.mean,'.','MarkerSize',30)
+        ylabel('Reaction time (ms)')
+        xlabel('Policy complexity')
+        
+        
     case 'reward-complexity'
         
         % theoretical curves
@@ -42,7 +68,6 @@ switch fig
         ylabel('Average reward')
         title('Optimal trade-off curves')
         axis tight
-        
         
         for c = 1:length(unique(data(1).cond))
             subplot(2,3,c+1); hold on;
@@ -350,11 +375,20 @@ switch fig
         
     case 'capacity'
         %correlation between agent's C parameter and policy complexity in each conditions
+        
         figure; hold on;
+        subplot 121;
+        xlabel('Capacity (fitted)')
+        ylabel('Policy complexity (empirical)')
+        dline; axis square; axis equal; axis square;
         for c = 1:C
-            R = squeeze(mean(results.R));
-            plot(mresults(2).x(:,1),R(:,c),'.','Color',map(c,:),'MarkerSize',50);
+            subplot 121; hold on;
+            plot(mresults(2).x(:,1),results.R_data(:,c),'.','Color',map(c,:),'MarkerSize',20);
+            subplot 122; hold on;
+            histogram(results.R_data(:,c),30,'FaceColor',map(c,:));axis square;
+            xlabel('Policy complexity');
         end
+        
         
     case 'params_winmodel' % only for winning model
         m = 2;
@@ -362,7 +396,6 @@ switch fig
         for i = 1:size(mresults(m).x,2)
             subplot(1,size(mresults(m).x,2),i); hold on;
             histogram(mresults(m).x(:,i),25,'FaceColor','k')
-            %title(results(m).param(i).label)
             title(mresults(m).param(i).label);
             if i ==1;xlabel('Parameter value');end
         end
@@ -427,11 +460,7 @@ switch fig
         set(gcf, 'Position',  [0, 200, 1400, 300])
         
         
-        plot_figures('reward-complexity',simresults,simdata);
-        plot_figures('bias-complexity',simresults,simdata);
-        plot_figures('gobias',simresults,simdata); pause(1);
-        plot_figures('bar-gb-pc',simresults,simdata);
-        plot_figures('beta-complexity',simresults,simdata);
+        plot_figures('all',simresults,simdata);
         
     case 'params_altmodel' % simulation for alternative model
         m = 1;
@@ -503,15 +532,21 @@ switch fig
         set(gcf, 'Position',  [0, 200, 1400, 300])
         
         
-        plot_figures('reward-complexity',simresults,simdata);
-        plot_figures('bias-complexity',simresults,simdata);
-        plot_figures('gobias',simresults,simdata);
-        plot_figures('bar-gb-pc',simresults,simdata);
-        plot_figures('beta-complexity',simresults,simdata);
+        plot_figures('all',simresults,simdata);
         
         
-    case 'params_dorfman'
-        %rng(3);
+    case 'params_dorfman_adapt'
+        
+        m = 3;
+        figure; hold on;
+        for i = 1:size(mresults(m).x,2)
+            subplot(1,size(mresults(m).x,2),i); hold on;
+            histogram(mresults(m).x(:,i),25,'FaceColor','k')
+            title(mresults(m).param(i).label);
+            if i ==1;xlabel('Parameter value');end
+        end
+        set(gcf, 'Position',  [0, 0, 1200, 400])
+        
         
         for s = 1:length(data)
             
@@ -560,11 +595,68 @@ switch fig
         set(gcf, 'Position',  [400, 100, 600, 400])
         
         
-        plot_figures('reward-complexity',simresults,simdata);
-        plot_figures('bias-complexity',simresults,simdata);
-        plot_figures('gobias',simresults,simdata);
-        plot_figures('bar-gb-pc',simresults,simdata);
-        plot_figures('beta-complexity',simresults,simdata);
+        plot_figures('all',simresults,simdata);
+        
+    case 'params_dorfman_fix'
+        
+        m = 4;
+        figure; hold on;
+        for i = 1:size(mresults(m).x,2)
+            subplot(1,size(mresults(m).x,2),i); hold on;
+            histogram(mresults(m).x(:,i),25,'FaceColor','k')
+            title(mresults(m).param(i).label);
+            if i ==1;xlabel('Parameter value');end
+        end
+        set(gcf, 'Position',  [0, 0, 1200, 400])
+        
+        for s = 1:length(data)
+            param = mresults(4).x(s,:); % fitted parameters to hayley's model
+            simdata(s) = sim_fixed(param,data(s)); % condition
+        end
+        
+        % add a calculation of go bias and policy complexity (from our
+        % analysis)
+        simresults = analyze_gng(simdata);
+        
+        
+        movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
+        w = zeros(length(simdata),length(simdata(1).w(simdata(1).cond==2))); % subjects x trials x condition
+        for s = 1:length(simdata)
+            for c = 1:C
+                w(s,1:length(simdata(s).w(simdata(s).cond==c)),c) = movmean(simdata(s).w(simdata(s).cond==c),10);
+                movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
+                
+            end
+        end
+        w(w==0) = NaN;
+        movcost(movcost==0) = NaN;
+        
+        
+        % w - adaptive weight
+        figure; hold on;
+        subplot 121; hold on;
+        
+        for c = 1:C
+            t = shadedErrorBar(1:size(w,2),mean(w(:,:,c)),sem(w(:,:,c),1),{'Color',map(c,:)},1);
+            handles(c) = t.mainLine;
+        end
+        
+        legend(handles,legStr,'Location','Best');
+        ylabel('Adaptive weight')
+        xlabel('Trials');
+        
+        % policy cost
+        subplot 122; hold on;
+        for c = 1:C
+            shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+        end
+        ylabel('Policy complexity');
+        xlabel('Trials');
+        set(gcf, 'Position',  [400, 100, 600, 400])
+        
+        plot_figures('all',simresults,simdata);
+        
+        
         
         
     case 'bic'

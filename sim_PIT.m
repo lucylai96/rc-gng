@@ -1,4 +1,4 @@
-function [simdata, simresults] = sim_negauto(m)
+function [simdata, simresults] = sim_PIT(m)
 % PURPOSE: simulate negative automaintence experiment for different
 % capacities
 % INPUT: m = model (m1 = policy cost, m2 - no cost)
@@ -8,10 +8,9 @@ rng(1); % set random seed for reproducibility
 prettyplot
 close all;
 
-legStr = {'K','I'};
+legStr = {'Control, S = 2'};
 n = 100;
-expt = 1;
-data = generate_negauto(n,expt); % number of simulated subjects
+data = generate_negauto(n,legStr); % number of simulated subjects
 
 for s = 1:length(data)
     agent(s).lrate_theta = 0.7;
@@ -25,14 +24,18 @@ for s = 1:length(data)
             agent(s).lrate_beta = 0;
             agent(s).beta0 = 3;
             
-        case 2 % cost / exp 1
+        case 2 % cost
             agent(s).C = rand;
             agent(s).lrate_beta = 1;
             agent(s).beta0 = 1;
             
-        case 3 % cost / exp 3
-    
-      
+        case 3 % using the fitted models
+            x = results(2).x(s,:);
+            agent(s).C = x(1);
+            agent(s).lrate_theta = x(2);
+            agent(s).lrate_V = x(3);
+            agent(s).lrate_beta = 1;
+            agent(s).beta0 = 1;
     end
     simdata(s) = actor_critic_gng(agent(s),data(s));
 end

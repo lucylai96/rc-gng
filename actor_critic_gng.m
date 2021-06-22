@@ -69,7 +69,7 @@ for c = 1:length(C)
         simdata.cost(ix(t)) = cost;
         simdata.theta(ix(t),:) = theta;
         %simdata.V(ix(t),:) = V;
-        simdata.costdev(ix(t),:) = costdev;
+        %simdata.costdev(ix(t),:) = costdev;
     end
     simdata.p(c,:) = p;
 end

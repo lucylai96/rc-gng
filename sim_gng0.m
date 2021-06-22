@@ -40,7 +40,7 @@ for s = 1:length(data)
         case 3 % using the fitted models
             x = results(2).x(s,:);
             agent.C = x(1);
-            agent.lrate_theta = x(2);
+            agent.lrate_theta = 1;
             agent.lrate_V = x(3);
             agent.lrate_beta = 1;
             agent.beta0 = 1;

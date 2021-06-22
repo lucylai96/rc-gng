@@ -49,35 +49,51 @@ function data = sim_fixed(param,stim,R)
         pq = 2; pv = 2;
     end
     
+    C = unique(data(1).cond);
+for c = 1:length(C) % for each condition
+    ix = find(data.cond==C(c));
+    stim = data.s(ix);
+    corchoice = data.corchoice(ix);    % correct choice on each trial
     u = unique(stim);
     S = length(u);
     v = zeros(S,1) + mv;
     q = zeros(S,2) + mq;
     Mv = zeros(S,1) + pv;
     Mq = zeros(S,2) + pq;
-    [~,opt] = max(R,[],2);
+      R = data.condQ(c).Q;
+  
     
-    for n = 1:length(stim)
+    for t = 1:length(stim)
                 
-        s = stim(n);  % stimulus
+          s = stim(t);  % stimulus
         d = (1-w)*q(s,1) - (1-w)*q(s,2) - w*v(s);
         P = 1/(1+exp(-bt*d)); % probability of NoGo
+        policy = [P 1-P];
         if rand < P
-            a = 1;
+            a = 1; % no-go
         else
-            a = 2;
+            a = 2; 
         end
         
+        cost = log(policy(a)) - log(p(a));               % policy complexity cost
+        
         % sample reward
-        r = rand < R(s,a);
-        acc = a==opt(s);
+        r = rand< R(s,a) ; % reward
+        
+        if a == corchoice(t)
+            acc = 1;                % accuracy
+        else
+            acc = 0;
+        end
         
         % store data
-        data.a(n,1) = a;
-        data.r(n,1) = double(r);
-        data.acc(n,1) = double(acc);
-        data.w(n,1) = w;
-        data.s(n,1) = s;
+        data.a(ix(t)) = a;
+        data.r(ix(t)) = double(r);
+        data.acc(ix(t)) = double(acc);
+        data.w(ix(t)) = w;
+        data.s(ix(t)) = s;
+        data.cost(ix(t)) = cost;
+        
         
         % update reward predictions
         Mv(s) = Mv(s) + 1;

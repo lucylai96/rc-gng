@@ -20,9 +20,9 @@ elseif length(x)==4 % 'best' model
     agent.C = x(1);
     agent.lrate_theta = x(2);
     agent.lrate_V = x(3);
-    agent.beta0 = 1;
+    agent.beta0 = x(4);
     agent.lrate_beta = 1;
-    agent.lrate_p = x(4);
+    agent.lrate_p = 0;
     agent.lrate_e = 0.01;
     agent.b = 0.5;
 end
