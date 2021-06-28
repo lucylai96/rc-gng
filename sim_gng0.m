@@ -20,11 +20,10 @@ if m == 3
 end
 
 for s = 1:length(data)
-    agent.lrate_theta = 0.3;
-    agent.lrate_V = 0.3;
+    agent.lrate_theta = 0.5;
+    agent.lrate_V = 0.5;
     agent.lrate_p = 0;
     agent.lrate_e = 0.01;
-    agent.C = 1;
     agent.m = m;
     agent.b = 0.5;
     switch agent.m
@@ -33,31 +32,32 @@ for s = 1:length(data)
             agent.beta0 = 3;
             
         case 2 % cost
-            agent.C = rand+0.2;
+            agent.C = rand;
             agent.lrate_beta = 1;
             agent.beta0 = 1;
             
         case 3 % using the fitted models
             x = results(2).x(s,:);
-            agent.C = x(1);
-            agent.lrate_theta = 1;
-            agent.lrate_V = x(3);
+            agent.C = rand;
             agent.lrate_beta = 1;
             agent.beta0 = 1;
-            agent.b = 0.5;
     end
     simdata(s) = actor_critic_gng(agent,data(s));
+    capacity(s) = agent.C;
 end
+
 
 simresults = analyze_gng(simdata);
 simdata(1).legStr = legStr;
-
-plot_figures('reward-complexity',simresults,simdata);
-plot_figures('bias-complexity',simresults,simdata);
-plot_figures('gobias',simresults,simdata);
-plot_figures('bar-gb-pc',simresults,simdata);
-plot_figures('beta-complexity',simresults,simdata);
-pause(1);
+figure; hold on; map = gngColors(5);
+for c = 1:5
+    plot(capacity,simresults.R_data(:,c),'.','Color',map(c,:),'MarkerSize',20);
+end
+dline
+xlabel('Agent capacity')
+ylabel('Policy complexity (learned)')
+        
+plot_figures('all',simresults,simdata);
 
 figure;hold on;
 plot(simdata(1).costdev)

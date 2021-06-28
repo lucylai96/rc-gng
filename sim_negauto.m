@@ -1,4 +1,4 @@
-function [simdata, simresults] = sim_negauto(m)
+function [simdata, simresults] = sim_negauto(expt)
 % PURPOSE: simulate negative automaintence experiment for different
 % capacities
 % INPUT: m = model (m1 = policy cost, m2 - no cost)
@@ -9,30 +9,34 @@ prettyplot
 close all;
 
 legStr = {'K','I'};
-n = 100;
-expt = 1;
+n = 50;
 data = generate_negauto(n,expt); % number of simulated subjects
 
 for s = 1:length(data)
-    agent(s).lrate_theta = 0.7;
-    agent(s).lrate_V = 0.5;
+    agent(s).lrate_theta = 0.2;
+    agent(s).lrate_V = 0.2;
     agent(s).lrate_p = 0;
     agent(s).lrate_e = 0.01;
-    agent(s).m = m;
     agent(s).b = 1;
-    switch agent(s).m
-        case 1 % no cost
+    
+    switch expt
+        case 0 % no cost
+            agent(s).m = 1;
             agent(s).lrate_beta = 0;
             agent(s).beta0 = 3;
             
-        case 2 % cost / exp 1
+        case 1 % cost / exp 1
+            agent(s).m = 2;
             agent(s).C = rand;
             agent(s).lrate_beta = 1;
             agent(s).beta0 = 1;
             
         case 3 % cost / exp 3
-    
-      
+            agent(s).m = 2;
+            agent(s).C = rand;
+            agent(s).lrate_beta = 1;
+            agent(s).beta0 = 0;
+            
     end
     simdata(s) = actor_critic_gng(agent(s),data(s));
 end
@@ -42,50 +46,65 @@ simdata(1).legStr = legStr;
 
 % plots
 map = brewermap(n,'*Reds');
-%map = map(11:end,:);
 
 % cumulative presses,
 figure; hold on;
-
 subplot 131; hold on;
 imagesc(sort([agent.C])); colormap(map)
 ct = colorbar; axis square; xlabel('Agents')
 title(ct,'Capacity')
 set(gca,'ytick',[])
 
-subplot 132; hold on;
-for s = 1:length(data)
-    simdata(s).cs = cumsum(simdata(s).a==2); % a = 2 is peck
-    plot(simdata(s).cs,'Color',map(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',2);
-    %xplot = find(simdata(s).r==1);
-    %line([xplot' xplot'+10]',[simdata(s).cs(xplot)' simdata(s).cs(xplot)']','LineWidth',2,'Color','k');
+if expt == 3
+    map2 = brewermap(n,'*Greens');
+    subplot 132; hold on;
+    for s = 1:length(data)
+        simdata(s).cs = cumsum(simdata(s).a==2); % a = 1 is no peck, a = 2 is peck (K), a = 3 is peck (I)
+        plot(simdata(s).cs,'Color',map(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',3);
+        %plot(simdata(s).cs,'Color',map(round((1/4)*n),:),'LineWidth',2);
+        simdata(s).cs2 = cumsum(simdata(s).a==3); % a = 1 is no peck, a = 2 is peck (K), a = 3 is peck (I)
+        plot(simdata(s).cs2,'Color',map2(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',3);
+        %plot(simdata(s).cs2,'Color',map2(round((1/4)*n),:),'LineWidth',2);
+    end
+    axis([0 length(simdata(s).s) 0 length(simdata(s).s)]);
+    axis square; dline
+    ylabel('Cumulative presses');
+    xlabel('Trials');
+    legend(legStr)
+    plot([200 400; 200 400],[0 0; 600 600],'k--')
+else
+    subplot 132; hold on;
+    for s = 1:length(data)
+        simdata(s).cs = cumsum(simdata(s).a==2); % a = 1 is no peck, a = 2 is peck (K), a = 3 is peck (I)
+        plot(simdata(s).cs,'Color',map(ceil(n*agent(s).C/max([agent.C])),:),'LineWidth',3);
+    end
+    axis([0 length(simdata(s).s) 0 length(simdata(s).s)]);
+    axis square; dline
+    ylabel('Cumulative presses');
+    xlabel('Trials');
 end
-axis([0 length(simdata(s).s) 0 length(simdata(s).s)]);
-axis square; dline
-ylabel('Cumulative presses');
-xlabel('Trials');
 
 % capacity
 subplot 133; hold on;
 for s = 1:length(data)
     plot(sum(simdata(s).a==2),agent(s).C,'o','Color',map(ceil(n*agent(s).C/max([agent.C])),:))
 end
-%sum(simdata(s).a==2)/length(simdata(s).a)
 ylabel('Capacity');
 xlabel('Total Pecks');
 box off
 axis square
-set(gcf, 'Position',  [400, 100, 1200, 500])
+set(gcf, 'Position',  [400, 100, 1000, 300])
+
+sgtitle(strcat('Expt',num2str(expt)))
 
 %%
 C =1;
-figure; hold on;
 movbeta = zeros(length(simdata),length(simdata(1).beta(simdata(1).cond==2)));
 movcost = zeros(length(simdata),length(simdata(1).cost(simdata(1).cond==2)));
 movtheta = zeros(length(simdata)*2,length(simdata(1).theta(simdata(1).cond==2)));
 
 for s = 1:length(simdata)
-    for c = 1:C
+    for c = 1
         movbeta(s,1:length(simdata(s).beta(simdata(s).cond==c)),c) = movmean(simdata(s).beta(simdata(s).cond==c),10);
         movcost(s,1:length(simdata(s).cost(simdata(s).cond==c)),c) = movmean(simdata(s).cost(simdata(s).cond==c),20);
         movtheta(s*2-1:s*2,1:length(simdata(s).theta(simdata(s).cond==c,:)),c) = simdata(s).theta(simdata(s).cond==c,:)';
@@ -95,22 +114,23 @@ movbeta(movbeta==0) = NaN;
 movcost(movcost==0) = NaN;
 %movtheta(movtheta==0) = NaN;
 
-% beta
-subplot 111; hold on;
-for c = 1:C
-    l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
-end
-ylabel('\beta');
-xlabel('Trials');
-
-% policy cost
-subplot 212; hold on;
-for c = 1:C
-    l(c,:) = shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
-end
-ylabel('Policy complexity');
-xlabel('Trials');
-set(gcf, 'Position',  [400, 100, 400, 600])
+% % beta
+% figure; hold on;
+% subplot 111; hold on;
+% for c = 1:C
+%     l(c,:) = shadedErrorBar(1:size(movbeta,2),mean(movbeta(:,:,c)),sem(movbeta(:,:,c),1),{'Color',map(c,:)},1);
+% end
+% ylabel('\beta');
+% xlabel('Trials');
+%
+% % policy cost
+% subplot 212; hold on;
+% for c = 1:C
+%     l(c,:) = shadedErrorBar(1:size(movcost,2),mean(movcost(:,:,c)),sem(movcost(:,:,c),1),{'Color',map(c,:)},1);
+% end
+% ylabel('Policy complexity');
+% xlabel('Trials');
+% set(gcf, 'Position',  [400, 100, 400, 600])
 
 % theta
 figure; hold on;
@@ -130,9 +150,15 @@ set(gcf, 'Position',  [400, 100, 1000, 300])
 figure; hold on;
 subplot 211; hold on;
 for s = 1:length(simdata)
+    plot(simdata(s).V(:,1),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
+end
+ylabel('V(on)');
+
+subplot 212; hold on;
+for s = 1:length(simdata)
     plot(simdata(s).V(:,2),'Color',map(ceil(n*agent(s).C/max([agent.C])),:))
 end
-ylabel('\theta');
+ylabel('V(off)');
 xlabel('Trials');
 
 end

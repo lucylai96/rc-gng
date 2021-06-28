@@ -8,33 +8,36 @@ function plot_figures(fig, results, data, mresults)
 
 if nargin < 2; load('gng_results.mat'); end
 if nargin < 3; load('gng_data.mat'); end
-if nargin < 4; model = load('model_fits10.mat'); mresults = model.results; end
+if nargin < 4; model = load('model_fits12.mat'); mresults = model.results; end
 
 if nargin < 1 % plot all figures
     fig = 1;
     plot_figures('all')
 end
 
+% plot_figures('capacity', results, data)
+% plot_figures('bic', results, data)
 % plot_figures('params_winmodel');
 % plot_figures('params_altmodel');
 % plot_figures('params_dorfman_adapt');
 % plot_figures('params_dorfman_fix');
 
-rng(1); % set random seed for reproducibile bootstrapped confidence intervals
+
+rng(1); % set random seed for reproducible bootstrapped confidence intervals
 C = length(unique(data(1).cond));
 map = gngColors(C);
 legStr = data(1).legStr;
 
 switch fig
     case 'all'
-        plot_figures('reward-complexity', results, data);
-        plot_figures('bias-complexity', results, data);
-        plot_figures('gobias', results, data); pause(1)
-        plot_figures('bar-gb-pc', results, data); pause(1)
-        plot_figures('beta-complexity', results, data);
         plot_figures('capacity', results, data)
-        plot_figures('rt', results, data)
-        plot_figures('bic', results, data)
+        plot_figures('reward-complexity', results, data);
+        plot_figures('bias-complexity', results, data);pause(1)
+        plot_figures('gobias', results, data); 
+        plot_figures('bar-gb-pc', results, data);
+        plot_figures('beta-complexity', results, data);
+        %plot_figures('rt', results, data)
+        
     case 'rt'
         figure; hold on;
           subplot 121; hold on;

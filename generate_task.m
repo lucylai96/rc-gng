@@ -1,4 +1,4 @@
-function data = generate_task(s,legStr)
+function data = generate_task(n,legStr)
 % INPUT: s - number of subjects
 
 beta = linspace(0.1,15,50);
@@ -6,6 +6,7 @@ beta = linspace(0.1,15,50);
 % S = 2
 trials = 60; states = 2;
 Q2 = [0.2 0.8; 0.8 0.2]; Ps = ones(1,states)/states;
+Q2 = Q2;
 cond(1) = generate_cond(trials, states, Q2);
 [R(1,:),V(1,:)] = blahut_arimoto(Ps,Q2,beta);
 
@@ -14,6 +15,7 @@ Q4(:,:,1) = [0.4 0.6; 0.6 0.4; 0.39 0.61; 0.61 0.39];  % S = 4, high similarity,
 Q4(:,:,2) = [0.2 0.8; 0.8 0.2; 0.19 0.81; 0.81 0.19];  % S = 4, high similarity, HC, distance is 0
 Q4(:,:,3) = [0.2 0.8; 0.8 0.2; 0.4 0.6; 0.6 0.4];  % S = 4, low similarity, LC, distance is 0.2
 Q4(:,:,4) = [0.2 0.8; 0.8 0.2; 0 1; 1 0];          % S = 4, low similarity, HC, distance is 0.2
+Q4 = Q4;
 
 trials = 120; states = 4; Ps = ones(1,states)/states;
 for i = 2:size(Q4,3)+1
@@ -24,13 +26,13 @@ end
 
 % theoretical curves
 figure; hold on;
-plot(R',V')
+plot(R',V','LineWidth',3)
 legend(legStr)
 xlabel('Policy complexity')
 ylabel('Average reward')
+axis([0 0.7 0 3])
 
-
-for i = 1:s
+for i = 1:n
     data(i).s = [cond.state];
     data(i).corchoice = [cond.corchoice];
     data(i).cond = [ones(1,trials/2)];

@@ -31,14 +31,16 @@ for m = models
             %param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_V');
             %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) 0,'label','lrate_{\beta}');
             
-            param(1) = struct('name','C','lb',0,'ub',log(8),'logpdf',@(x) unifpdf(x,0,log(8)),'label','C');
-            param(2) = struct('name','lrate_theta','lb',1,'ub',1,'logpdf',@(x) 1,'label','\alpha_{\theta}');
-            param(3) = struct('name','lrate_V','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','\alpha_V');
-            %param(4) = struct('name','lrate_beta','lb',0.5,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','\alpha_{\beta}');
-            %param(5) = struct('name','b','lb',0,'ub',1,'logpdf',@(x)  sum(log(unifpdf(x,0,1))),'label','b'); % b is initial bias to start at Go
-            %param(4) = struct('name','beta0','lb',0,'ub',30,'logpdf',@(x) 0,'label','b'); % b is initial bias to start at Go
+            param(1) = struct('name','C','lb',0.1,'ub',2,'logpdf',@(x) unifpdf(x,0.1,2),'label','C');
+            param(2) = struct('name','lrate_theta','lb',0.7,'ub',1,'logpdf',@(x) 1,'label','\alpha_{\theta}');
+            param(3) = struct('name','lrate_V','lb',0.7,'ub',1,'logpdf',@(x) 1,'label','\alpha_V');
+            %param(4) = struct('name','lrate_e','lb',0,'ub',1,'logpdf',@(x) rand,'label','\alpha_{\eta}');
             
-            %param(4) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{p}');
+            %param(4) = struct('name','lrate_beta','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','\alpha_{\beta}');
+            %param(5) = struct('name','b','lb',0,'ub',1,'logpdf',@(x)  sum(log(unifpdf(x,0,1))),'label','b'); % b is initial bias to start at Go
+            %param(6) = struct('name','beta0','lb',0,'ub',30,'logpdf',@(x) 0,'label','\beta_0'); % b is initial bias to start at Go
+            
+            %param(6) = struct('name','lrate_p','lb',0,'ub',1,'logpdf',@(x) sum(log(betapdf(x,a,b))),'label','lrate_{p}');
             % TODO: also try model where b is fixed to 0.3
         case 3
             likfun = @dorfman_adaptive_lik;
@@ -71,5 +73,5 @@ end
 use_bic = 1;
 bms_results = mfit_bms(results,use_bic);
 
-save(strcat('model_fits10.mat'),'results','bms_results')
+save(strcat('model_fits11.mat'),'results','bms_results')
 

@@ -18,7 +18,7 @@ for s = 1:length(data)
         ix = data(s).cond==C(c);
         state = data(s).s(ix);
         action = data(s).a(ix);
-        RT = data(s).rt(ix);
+        %RT = data(s).rt(ix);
         Ps = ones(1,length(unique(state)))/length(unique(state));
         
         R_data(s,c) = mutual_information(state,action,0.01);
@@ -34,8 +34,8 @@ for s = 1:length(data)
         results.R(s,:,c) = R(c,:); % S subjects x 50 betas x C conditions
         results.V(s,:,c) = V(c,:);
         
-        rt.mean(s,c) = nanmean(RT(action==2)); % reaction time
-        rt.std(s,c) = nanstd(RT(action==2));
+        %rt.mean(s,c) = nanmean(RT(action==2)); % reaction time
+        %rt.std(s,c) = nanstd(RT(action==2));
         gb(s,c) = mean(data(s).acc(data(s).s==1 & data(s).cond==c)) - mean(data(s).acc(data(s).s==2 & data(s).cond==c)); % go - nogo
         go = data(s).acc(data(s).s==1 & data(s).cond==c);
         nogo = data(s).acc(data(s).s==2 & data(s).cond==c);
@@ -70,7 +70,7 @@ results.bias(isnan(results.bias)) = 0;
 
 results.gobias =  gobias; % dynamic go bias
 results.gb =  gb; % static go bias
-results.rt = rt; % reaction time
+%results.rt = rt; % reaction time
 
 % save data
 % save('gng_results.mat','results');
